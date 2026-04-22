@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Intel · Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #070A10;
+  --s1:       #0D1220;
+  --s2:       #121828;
+  --b:        rgba(255,255,255,0.06);
+  --b2:       rgba(255,255,255,0.1);
+  --cyan:     #00E5FF;
+  --green:    #00FF94;
+  --yellow:   #FFD60A;
+  --coral:    #FF4D6D;
+  --purple:   #A855F7;
+  --text:     #CBD5E8;
+  --dim:      #4A5568;
+  --white:    #F0F4FF;
+  --fd:       'Bebas Neue', sans-serif;
+  --fm:       'DM Mono', monospace;
+  --fb:       'Manrope', sans-serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{height:100%;overflow:hidden;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--fb);
+  position:relative;
+}
+
+/* Scanline + grid bg */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,0.018) 1px, transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+  z-index:0;
+}
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,229,255,0.06) 0%, transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── MODAL ── */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(4,6,12,0.97);
+  z-index:999;
+  display:flex;align-items:center;justify-content:center;
+  animation:fadeIn 0.3s ease;
+}
+.modal{
+  background:var(--s1);
+  border:1px solid var(--b2);
+  padding:48px 52px;
+  width:min(580px,94vw);
+  position:relative;
+  overflow:hidden;
+}
+.modal::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--green),transparent);
+}
+.modal::after{
+  content:'';
+  position:absolute;bottom:0;right:0;
+  width:200px;height:200px;
+  background:radial-gradient(circle at center,rgba(0,229,255,0.06),transparent 70%);
+}
+.m-eyebrow{
+  font-family:var(--fm);font-size:10px;
+  text-transform:uppercase;letter-spacing:3px;
+  color:var(--cyan);margin-bottom:12px;
+}
+.m-title{
+  font-family:var(--fd);font-size:44px;
+  color:var(--white);line-height:1;margin-bottom:4px;
+}
+.m-sub{
+  font-family:var(--fm);font-size:11px;
+  color:var(--dim);margin-bottom:40px;
+}
+.f-group{margin-bottom:22px;}
+.f-label{
+  display:block;font-family:var(--fm);font-size:10px;
+  text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--cyan);margin-bottom:7px;
+}
+.f-input{
+  width:100%;background:var(--bg);
+  border:1px solid var(--b2);
+  color:var(--white);
+  padding:13px 16px;
+  font-family:var(--fm);font-size:12px;
+  outline:none;transition:border-color 0.2s;
+}
+.f-input:focus{border-color:var(--cyan);}
+.f-hint{
+  margin-top:5px;font-family:var(--fm);font-size:9px;
+  color:var(--dim);line-height:1.5;
+}
+.f-hint a{color:var(--cyan);text-decoration:none;}
+.btn-init{
+  width:100%;padding:16px;margin-top:8px;
+  background:var(--cyan);color:var(--bg);
+  border:none;font-family:var(--fb);
+  font-weight:800;font-size:13px;
+  text-transform:uppercase;letter-spacing:2px;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.btn-init:hover{opacity:0.85;}
+
+/* ── HEADER ── */
+header{
+  position:relative;z-index:10;
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:0 32px;
+  height:60px;
+  border-bottom:1px solid var(--b);
+  background:rgba(7,10,16,0.8);
+  backdrop-filter:blur(12px);
+}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-sq{
+  width:28px;height:28px;
+  border:1.5px solid var(--cyan);
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-sq::before{
+  content:'';width:10px;height:10px;
+  background:var(--cyan);
+}
+.logo-name{
+  font-family:var(--fd);font-size:22px;
+  color:var(--white);letter-spacing:1px;
+}
+.logo-ver{
+  font-family:var(--fm);font-size:9px;
+  color:var(--dim);
+  border:1px solid var(--b2);
+  padding:2px 6px;
+}
+.h-center{display:flex;align-items:center;gap:8px;}
+.h-pill{
+  font-family:var(--fm);font-size:10px;
+  padding:5px 12px;
+  border:1px solid var(--b);
+  color:var(--dim);
+  text-transform:uppercase;letter-spacing:1px;
+}
+.h-right{display:flex;align-items:center;gap:12px;}
+.status{display:flex;align-items:center;gap:7px;font-family:var(--fm);font-size:10px;color:var(--dim);}
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green);
+}
+.dot.pulsing{animation:pulse 2s infinite;}
+.dot.err{background:var(--coral);animation:none;}
+.dot.warn{background:var(--yellow);animation:none;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+.btn-sm{
+  background:transparent;border:1px solid var(--b2);
+  color:var(--dim);padding:6px 14px;
+  font-family:var(--fm);font-size:10px;
+  text-transform:uppercase;letter-spacing:1px;
+  cursor:pointer;transition:all 0.15s;
+}
+.btn-sm:hover{border-color:var(--cyan);color:var(--cyan);}
+
+/* ── LAYOUT ── */
+.layout{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:300px 1fr;
+  height:calc(100vh - 60px);
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  border-right:1px solid var(--b);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sb-section{
+  padding:20px;
+  border-bottom:1px solid var(--b);
+}
+.sb-section:last-child{flex:1;overflow-y:auto;}
+.sb-section::-webkit-scrollbar{width:3px;}
+.sb-section::-webkit-scrollbar-thumb{background:var(--b2);}
+.sec-label{
+  font-family:var(--fm);font-size:9px;
+  text-transform:uppercase;letter-spacing:2px;
+  color:var(--dim);margin-bottom:14px;
+}
+
+/* KPI grid */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.kpi{
+  background:var(--s2);
+  border:1px solid var(--b);
+  padding:11px 12px;
+  position:relative;
+  overflow:hidden;
+}
+.kpi::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:var(--cyan);opacity:0.2;
+}
+.kpi.accent::after{background:var(--green);opacity:0.4;}
+.kpi-val{
+  font-family:var(--fd);font-size:26px;
+  color:var(--white);line-height:1;
+}
+.kpi.accent .kpi-val{color:var(--cyan);}
+.kpi-lbl{
+  font-family:var(--fm);font-size:8px;
+  text-transform:uppercase;letter-spacing:1px;
+  color:var(--dim);margin-top:3px;
+}
+
+/* Quick q */
+.quick-list{display:flex;flex-direction:column;gap:4px;}
+.qbtn{
+  background:transparent;
+  border:1px solid var(--b);
+  color:var(--text);
+  padding:9px 11px;
+  text-align:left;
+  font-family:var(--fb);font-size:11px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.12s;
+  line-height:1.3;
+}
+.qbtn:hover{
+  border-color:var(--cyan);
+  color:var(--cyan);
+  background:rgba(0,229,255,0.04);
+}
+.qbtn::before{
+  content:'→ ';
+  color:var(--cyan);
+  opacity:0;
+  transition:opacity 0.12s;
+}
+.qbtn:hover::before{opacity:1;}
+
+/* Col tags */
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;}
+.tag{
+  font-family:var(--fm);font-size:8px;
+  padding:2px 7px;
+  border:1px solid var(--b);
+  color:var(--dim);
+  text-transform:uppercase;letter-spacing:0.5px;
+}
+.tag.num{border-color:rgba(0,229,255,0.2);color:rgba(0,229,255,0.6);}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;overflow:hidden;}
+
+/* Query bar */
+.qbar{
+  padding:20px 28px;
+  border-bottom:1px solid var(--b);
+  background:var(--s1);
+  flex-shrink:0;
+}
+.q-label{
+  font-family:var(--fm);font-size:9px;
+  text-transform:uppercase;letter-spacing:2px;
+  color:var(--dim);margin-bottom:9px;
+}
+.q-row{
+  display:flex;
+  border:1px solid var(--b2);
+  transition:border-color 0.2s;
+}
+.q-row:focus-within{border-color:var(--cyan);}
+.q-input{
+  flex:1;background:transparent;border:none;
+  color:var(--white);
+  padding:14px 18px;
+  font-family:var(--fb);font-size:15px;font-weight:600;
+  outline:none;
+}
+.q-input::placeholder{color:var(--dim);font-weight:400;}
+.q-send{
+  background:var(--cyan);border:none;
+  color:var(--bg);
+  padding:14px 24px;
+  font-family:var(--fb);font-weight:800;font-size:11px;
+  text-transform:uppercase;letter-spacing:2px;
+  cursor:pointer;transition:opacity 0.15s;
+  white-space:nowrap;
+}
+.q-send:hover{opacity:0.85;}
+.q-send:disabled{opacity:0.35;cursor:not-allowed;}
+
+/* Response pane */
+.resp-pane{
+  flex:1;overflow-y:auto;
+  padding:28px;
+  scroll-behavior:smooth;
+}
+.resp-pane::-webkit-scrollbar{width:4px;}
+.resp-pane::-webkit-scrollbar-thumb{background:var(--b2);}
+
+/* Empty */
+.empty{
+  height:100%;display:flex;
+  flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:12px;
+}
+.empty-icon{
+  font-size:36px;opacity:0.15;
+  filter:grayscale(1);
+}
+.empty-t{
+  font-family:var(--fd);font-size:24px;
+  color:var(--white);opacity:0.2;
+  letter-spacing:2px;
+}
+.empty-s{
+  font-family:var(--fm);font-size:10px;
+  color:var(--dim);text-align:center;max-width:260px;line-height:1.6;
+}
+
+/* Loading */
+.loading{
+  display:flex;align-items:center;gap:14px;
+  padding:20px 0;
+  font-family:var(--fm);font-size:11px;color:var(--dim);
+}
+.spinner{
+  width:18px;height:18px;
+  border:2px solid var(--b2);
+  border-top-color:var(--cyan);
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Response card */
+.rcard{animation:slideUp 0.35s ease;}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+.r-echo{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:20px;
+}
+.r-q{
+  font-family:var(--fm);font-size:11px;
+  color:var(--cyan);
+  background:rgba(0,229,255,0.06);
+  border-left:2px solid var(--cyan);
+  padding:7px 12px;
+  flex:1;
+}
+.r-ts{
+  font-family:var(--fm);font-size:9px;
+  color:var(--dim);
+}
+
+.r-insight{
+  background:var(--s1);
+  border:1px solid var(--b);
+  border-left:3px solid var(--green);
+  padding:22px;
+  font-size:14px;line-height:1.75;
+  color:var(--text);
+  margin-bottom:20px;
+  white-space:pre-wrap;
+}
+
+/* Metrics */
+.metrics-row{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:10px;
+  margin-bottom:20px;
+}
+.mc{
+  background:var(--s1);
+  border:1px solid var(--b);
+  padding:14px;
+  position:relative;overflow:hidden;
+}
+.mc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1.5px;
+  background:var(--cyan);
+}
+.mc-val{
+  font-family:var(--fd);font-size:28px;
+  color:var(--white);line-height:1;
+}
+.mc-lbl{
+  font-family:var(--fm);font-size:9px;
+  text-transform:uppercase;letter-spacing:1px;
+  color:var(--dim);margin-top:5px;
+}
+
+/* Chart */
+.chart-box{
+  background:var(--s1);
+  border:1px solid var(--b);
+  padding:22px;
+  margin-bottom:20px;
+}
+.chart-hd{
+  font-family:var(--fm);font-size:9px;
+  text-transform:uppercase;letter-spacing:2px;
+  color:var(--dim);margin-bottom:18px;
+  display:flex;align-items:center;gap:8px;
+}
+.chart-hd::before{
+  content:'';width:12px;height:2px;background:var(--cyan);
+}
+canvas{max-height:280px;}
+
+/* Error / warn */
+.err-box{
+  background:rgba(255,77,109,0.06);
+  border:1px solid rgba(255,77,109,0.25);
+  border-left:3px solid var(--coral);
+  padding:16px 18px;
+  font-family:var(--fm);font-size:11px;
+  color:var(--coral);line-height:1.6;
+}
+.warn-box{
+  background:rgba(255,214,10,0.06);
+  border:1px solid rgba(255,214,10,0.2);
+  border-left:3px solid var(--yellow);
+  padding:14px 16px;
+  font-family:var(--fm);font-size:10px;
+  color:var(--yellow);line-height:1.6;
+  margin-bottom:16px;
+}
+
+/* Countdown */
+.refresh-bar{
+  height:2px;background:var(--b);position:relative;margin-top:8px;
+}
+.refresh-progress{
+  position:absolute;left:0;top:0;height:100%;
+  background:var(--cyan);opacity:0.4;
+  transition:width 1s linear;
+}
+
+/* Fade */
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+</style>
+</head>
+<body>
+
+<!-- ── CONFIG MODAL ── -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="m-eyebrow">Social Media Analytics · MVP</div>
+    <div class="m-title">SOCIAL<br>INTEL</div>
+    <div class="m-sub">Conecta tu Google Sheets. Pregunta en español. Gratis.</div>
+
+    <div class="f-group">
+      <label class="f-label">URL de tu Google Sheets</label>
+      <input class="f-input" id="sheetsUrl" type="text"
+        placeholder="https://docs.google.com/spreadsheets/d/...">
+      <div class="f-hint">
+        En tu Sheet: <b>Archivo → Compartir → Publicar en la web → CSV</b> → copia la URL.<br>
+        O bien: comparte el Sheet como "cualquiera con el link puede ver".
+      </div>
+    </div>
+
+    <div class="f-group">
+      <label class="f-label">Gemini API Key</label>
+      <input class="f-input" id="geminiKey" type="password" placeholder="AIzaSy...">
+      <div class="f-hint">
+        Gratis en <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> →
+        "Get API Key". Free tier: 15 req/min, 1M tokens/día. $0.
+      </div>
+    </div>
+
+    <div class="f-group">
+      <label class="f-label">Nombre del proyecto</label>
+      <input class="f-input" id="projName" type="text"
+        value="Samsung Mobile México" placeholder="Samsung Mobile México">
+    </div>
+
+    <div class="f-group">
+      <label class="f-label">Auto-refresh cada (minutos)</label>
+      <input class="f-input" id="refreshMins" type="number" value="5" min="1" max="60">
+      <div class="f-hint">El dashboard volverá a leer el Sheet automáticamente cada N minutos.</div>
+    </div>
+
+    <button class="btn-init" onclick="boot()">Inicializar Dashboard →</button>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header id="hdr" style="display:none">
+  <div class="logo">
+    <div class="logo-sq"></div>
+    <div class="logo-name">SOCIAL INTEL</div>
+    <div class="logo-ver" id="projBadge">—</div>
+  </div>
+  <div class="h-center">
+    <div class="h-pill" id="dateRangePill">Sin datos</div>
+    <div class="h-pill" id="rowCountPill">0 registros</div>
+  </div>
+  <div class="h-right">
+    <div class="status">
+      <div class="dot pulsing" id="sDot"></div>
+      <span id="sTxt">Conectando...</span>
+    </div>
+    <button class="btn-sm" onclick="refreshData()">↻ Actualizar</button>
+    <button class="btn-sm" onclick="document.getElementById('overlay').style.display='flex'">⚙ Config</button>
+  </div>
+</header>
+
+<!-- ── LAYOUT ── -->
+<div class="layout" id="layout" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- KPIs globales -->
+    <div class="sb-section">
+      <div class="sec-label">Dataset overview</div>
+      <div class="kpi-grid">
+        <div class="kpi accent">
+          <div class="kpi-val" id="kCampaigns">—</div>
+          <div class="kpi-lbl">Campañas</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kFormats">—</div>
+          <div class="kpi-lbl">Formatos</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kPlatforms">—</div>
+          <div class="kpi-lbl">Plataformas</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kLastSync">—</div>
+          <div class="kpi-lbl">Último sync</div>
+        </div>
+      </div>
+      <div class="refresh-bar" style="margin-top:12px">
+        <div class="refresh-progress" id="refreshBar" style="width:100%"></div>
+      </div>
+    </div>
+
+    <!-- Quick questions -->
+    <div class="sb-section">
+      <div class="sec-label">Preguntas rápidas</div>
+      <div class="quick-list">
+        <button class="qbtn" onclick="fire('¿Cuál es el formato con mayor alcance?')">Formato con mayor alcance</button>
+        <button class="qbtn" onclick="fire('¿Qué tipo de contenido genera más engagement?')">Contenido con más engagement</button>
+        <button class="qbtn" onclick="fire('¿Cuál es la campaña con mejor desempeño general?')">Campaña con mejor desempeño</button>
+        <button class="qbtn" onclick="fire('¿Qué plataforma tiene mejor tasa de engagement?')">Mejor plataforma por engagement</button>
+        <button class="qbtn" onclick="fire('¿Cómo evoluciona el alcance semana a semana?')">Evolución semanal del alcance</button>
+        <button class="qbtn" onclick="fire('Dame un resumen ejecutivo del rendimiento general')">Resumen ejecutivo completo</button>
+        <button class="qbtn" onclick="fire('¿Cuáles son los 3 posts o publicaciones con más alcance?')">Top 3 publicaciones</button>
+        <button class="qbtn" onclick="fire('¿Qué día de la semana tiene mejor rendimiento?')">Mejor día de la semana</button>
+      </div>
+    </div>
+
+    <!-- Columns detected -->
+    <div class="sb-section">
+      <div class="sec-label">Columnas detectadas</div>
+      <div class="tags" id="colTags"><span class="tag">Cargando...</span></div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="qbar">
+      <div class="q-label">Pregunta en lenguaje natural sobre tus datos</div>
+      <div class="q-row">
+        <input type="text" class="q-input" id="qInput"
+          placeholder="Ej: ¿Cómo le fue a la campaña Galaxy S26 vs Buds4?"
+          onkeydown="if(event.key==='Enter')send()">
+        <button class="q-send" id="qBtn" onclick="send()">Analizar →</button>
+      </div>
+    </div>
+
+    <div class="resp-pane" id="respPane">
+      <div class="empty" id="emptyState">
+        <div class="empty-icon">◈</div>
+        <div class="empty-t">READY</div>
+        <div class="empty-s">Escribe una pregunta o selecciona una del panel izquierdo</div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const S = {
+  url: '', key: '', proj: '',
+  refreshMins: 5,
+  rows: [], cols: [],
+  agg: null,
+  busy: false,
+  timer: null,
+  countdown: null,
+  chartInst: null,
+  secondsLeft: 0
+};
+
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+function boot() {
+  const url  = document.getElementById('sheetsUrl').value.trim();
+  const key  = document.getElementById('geminiKey').value.trim();
+  const proj = document.getElementById('projName').value.trim() || 'Dashboard';
+  const mins = parseInt(document.getElementById('refreshMins').value) || 5;
+
+  if (!url || !key) { alert('Necesitas la URL del Sheet y tu API key de Gemini.'); return; }
+
+  S.url = url; S.key = key; S.proj = proj; S.refreshMins = mins;
+
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('hdr').style.display = 'flex';
+  document.getElementById('layout').style.display = 'grid';
+  document.getElementById('projBadge').textContent = proj;
+
+  refreshData();
+  startCountdown();
+}
+
+// ─── COUNTDOWN ANIMATION ─────────────────────────────────────────────────────
+function startCountdown() {
+  if (S.timer) clearInterval(S.timer);
+  if (S.countdown) clearInterval(S.countdown);
+
+  S.secondsLeft = S.refreshMins * 60;
+
+  S.countdown = setInterval(() => {
+    S.secondsLeft--;
+    const pct = (S.secondsLeft / (S.refreshMins * 60)) * 100;
+    document.getElementById('refreshBar').style.width = pct + '%';
+    if (S.secondsLeft <= 0) {
+      refreshData();
+      S.secondsLeft = S.refreshMins * 60;
+    }
+  }, 1000);
+}
+
+// ─── DATA LAYER ──────────────────────────────────────────────────────────────
+async function refreshData() {
+  setStatus('loading');
+  document.getElementById('refreshBar').style.width = '100%';
+  try {
+    const csvUrl = normUrl(S.url);
+    const res = await fetch(csvUrl + '&t=' + Date.now()); // cache bust
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const txt = await res.text();
+
+    const parsed = Papa.parse(txt, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true,
+      transformHeader: h => h.trim()
+    });
+
+    if (!parsed.data.length) throw new Error('Sheet vacío o sin datos');
+    S.rows = parsed.data;
+    S.cols = parsed.meta.fields || [];
+    S.agg  = aggregate(S.rows, S.cols);
+
+    updateSidebar();
+    setStatus('ok');
+  } catch(e) {
+    setStatus('err', e.message);
+  }
+  S.secondsLeft = S.refreshMins * 60;
+}
+
+function normUrl(u) {
+  if (u.includes('pub?output=csv') || u.includes('export?format=csv')) return u;
+  const m = u.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if (m) {
+    const gm = u.match(/gid=(\d+)/);
+    return `https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv&gid=${gm ? gm[1] : '0'}`;
+  }
+  return u;
+}
+
+// ─── AGGREGATION (token-efficient summary sent to Gemini) ─────────────────────
+function aggregate(rows, cols) {
+  const numCols = cols.filter(c => rows.slice(0,30).filter(r => typeof r[c] === 'number').length > 5);
+  const catCols = cols.filter(c => !numCols.includes(c));
+
+  const find = (...kw) => cols.find(c => kw.some(k => c.toLowerCase().includes(k)));
+
+  const D = {
+    dateCol:       find('fecha','date','semana','week','dia'),
+    campaignCol:   find('campa','campaign'),
+    formatCol:     find('format','tipo_cont','content_type','tipo de cont'),
+    platformCol:   find('plataforma','platform','red social','canal','channel','network'),
+    reachCol:      find('alcance','reach'),
+    engCol:        find('engagement','interacc'),
+    impCol:        find('impres'),
+    likesCol:      find('like','me gusta'),
+    viewsCol:      find('reprod','views','vista','play'),
+    shareCol:      find('compart','share'),
+    commentCol:    find('coment','comment'),
+    erCol:         find('tasa','rate','er')
+  };
+
+  const sum  = (data, col) => col ? data.reduce((s,r) => s + (Number(r[col])||0), 0) : null;
+  const avg  = (data, col) => col && data.length ? sum(data,col)/data.length : null;
+  const fmt  = n => n === null ? null : n > 1e6 ? (n/1e6).toFixed(1)+'M' : n > 1e3 ? (n/1e3).toFixed(1)+'K' : Math.round(n);
+
+  const groupSumm = (data) => {
+    const o = { _n: data.length };
+    numCols.forEach(c => { o[c] = { total: Math.round(sum(data,c)), avg: Math.round(avg(data,c)) }; });
+    return o;
+  };
+
+  const byGroup = (col) => {
+    if (!col) return {};
+    const g = {};
+    rows.forEach(r => {
+      const k = String(r[col]||'N/A');
+      if (!g[k]) g[k] = [];
+      g[k].push(r);
+    });
+    const out = {};
+    Object.entries(g).forEach(([k,v]) => { out[k] = groupSumm(v); });
+    return out;
+  };
+
+  // date range
+  let dateRange = 'N/A', uniqueDates = 0;
+  if (D.dateCol) {
+    const dates = rows.map(r=>r[D.dateCol]).filter(Boolean).map(String).sort();
+    if (dates.length) {
+      dateRange = `${dates[0]} a ${dates[dates.length-1]}`;
+      uniqueDates = new Set(dates).size;
+    }
+  }
+
+  // global totals (formatted for display)
+  const tot = {};
+  numCols.forEach(c => { tot[c] = { total: fmt(sum(rows,c)), avg: fmt(avg(rows,c)) }; });
+
+  return {
+    totalRows: rows.length,
+    columns: cols,
+    numericColumns: numCols,
+    categoricalColumns: catCols,
+    detectedMappings: D,
+    dateRange, uniqueDates,
+    campaigns:  Object.keys(byGroup(D.campaignCol)),
+    formats:    Object.keys(byGroup(D.formatCol)),
+    platforms:  Object.keys(byGroup(D.platformCol)),
+    globalTotals: tot,
+    byCampaign: byGroup(D.campaignCol),
+    byFormat:   byGroup(D.formatCol),
+    byPlatform: byGroup(D.platformCol),
+    rawSample: rows.slice(0,5)
+  };
+}
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+function updateSidebar() {
+  const a = S.agg;
+  document.getElementById('kCampaigns').textContent = a.campaigns.length || '—';
+  document.getElementById('kFormats').textContent   = a.formats.length   || '—';
+  document.getElementById('kPlatforms').textContent = a.platforms.length || '—';
+  document.getElementById('kLastSync').textContent  =
+    new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('dateRangePill').textContent = a.dateRange !== 'N/A' ? a.dateRange : 'Sin fechas';
+  document.getElementById('rowCountPill').textContent  = `${a.totalRows.toLocaleString()} registros`;
+
+  const colTags = document.getElementById('colTags');
+  colTags.innerHTML = S.cols.map(c =>
+    `<span class="tag ${S.agg.numericColumns.includes(c)?'num':''}">${c}</span>`
+  ).join('');
+}
+
+// ─── STATUS ──────────────────────────────────────────────────────────────────
+function setStatus(type, msg) {
+  const dot = document.getElementById('sDot');
+  const txt = document.getElementById('sTxt');
+  if (type === 'ok')      { dot.className='dot pulsing'; txt.textContent='Live · datos actualizados'; }
+  else if (type === 'loading') { dot.className='dot warn'; txt.textContent='Sincronizando...'; }
+  else                    { dot.className='dot err'; txt.textContent=msg||'Error'; }
+}
+
+// ─── QUERY FLOW ──────────────────────────────────────────────────────────────
+function send() {
+  const q = document.getElementById('qInput').value.trim();
+  if (q) fire(q);
+}
+
+async function fire(question) {
+  if (S.busy) return;
+  if (!S.agg) { showErr('Datos no cargados aún. Espera el primer sync o haz clic en Actualizar.'); return; }
+
+  document.getElementById('qInput').value = question;
+  S.busy = true;
+  document.getElementById('qBtn').disabled = true;
+  document.getElementById('emptyState') && (document.getElementById('emptyState').style.display = 'none');
+
+  const pane = document.getElementById('respPane');
+  pane.innerHTML = `<div class="loading"><div class="spinner"></div><span>Analizando con Gemini...</span></div>`;
+
+  try {
+    const result = await gemini(question);
+    render(question, result);
+  } catch(e) {
+    pane.innerHTML = `<div class="err-box">⚠ Error Gemini: ${e.message}<br><br>
+      Verifica que tu API key sea válida y que la URL del Sheet sea pública.</div>`;
+  } finally {
+    S.busy = false;
+    document.getElementById('qBtn').disabled = false;
+  }
+}
+
+// ─── GEMINI API ───────────────────────────────────────────────────────────────
+async function gemini(question) {
+  const systemPrompt = `Eres un analista senior de social media para ${S.proj}.
+Tienes acceso a datos reales de métricas de redes sociales actualizados en tiempo real desde Google Sheets.
+Tu trabajo: responder preguntas de forma clara, directa y accionable en español.
+No repitas datos crudos — interprételos. Destaca patrones, anomalías y oportunidades.
+
+DATOS DEL DATASET (agregados para análisis):
+${JSON.stringify(S.agg, null, 1)}
+
+INSTRUCCIÓN CRÍTICA: Responde ÚNICAMENTE con JSON válido, sin markdown, sin backticks, sin texto previo ni posterior.
+Usa exactamente esta estructura:
+{
+  "insight": "Análisis principal en 2-4 párrafos. Claro, accionable, en español. Sin listas, prosa directa.",
+  "metrics": [
+    {"label": "Nombre métrica", "value": "Valor formateado (ej: 2.4M, 8.3%, 14 posts)"}
+  ],
+  "chart": {
+    "type": "bar",
+    "title": "Título descriptivo del gráfico",
+    "labels": ["Label A", "Label B"],
+    "datasets": [{"label": "Serie", "data": [100, 200]}]
+  }
+}
+
+Reglas:
+- metrics: máximo 4 KPIs relevantes para la pregunta
+- chart: usa "bar", "line", "pie" o "doughnut" según lo que mejor comunique el dato. Si no aplica visualización, pon null
+- Si los datos no tienen columna relevante para la pregunta, indícalo en el insight`;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${S.key}`,
+    {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `${systemPrompt}\n\nPREGUNTA DEL USUARIO: ${question}` }] }],
+        generationConfig: { temperature: 0.25, maxOutputTokens: 2000 }
+      })
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  const raw  = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const clean = raw.replace(/```json[\s\S]*?```|```[\s\S]*?```/g, s =>
+    s.replace(/```json|```/g, '').trim()
+  ).trim();
+
+  // Find JSON in response (even if wrapped in text)
+  const jsonMatch = clean.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Gemini no devolvió JSON válido. Intenta de nuevo.');
+  return JSON.parse(jsonMatch[0]);
+}
+
+// ─── RENDER RESPONSE ──────────────────────────────────────────────────────────
+function render(question, r) {
+  const pane = document.getElementById('respPane');
+  const ts   = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const cid  = 'c' + Date.now();
+
+  const metricsHtml = r.metrics?.length ? `
+    <div class="metrics-row">
+      ${r.metrics.map(m=>`
+        <div class="mc">
+          <div class="mc-val">${m.value}</div>
+          <div class="mc-lbl">${m.label}</div>
+        </div>`).join('')}
+    </div>` : '';
+
+  const chartHtml = r.chart ? `
+    <div class="chart-box">
+      <div class="chart-hd">${r.chart.title || 'Visualización'}</div>
+      <canvas id="${cid}"></canvas>
+    </div>` : '';
+
+  pane.innerHTML = `
+    <div class="rcard">
+      <div class="r-echo">
+        <div class="r-q">${question}</div>
+        <div class="r-ts">${ts}</div>
+      </div>
+      <div class="r-insight">${r.insight}</div>
+      ${metricsHtml}
+      ${chartHtml}
+    </div>`;
+
+  // Draw chart
+  if (r.chart && document.getElementById(cid)) {
+    if (S.chartInst) S.chartInst.destroy();
+    const pal = ['rgba(0,229,255,0.85)','rgba(0,255,148,0.85)',
+                 'rgba(255,214,10,0.85)','rgba(255,77,109,0.85)',
+                 'rgba(168,85,247,0.85)','rgba(251,146,60,0.85)'];
+    const isLine = r.chart.type === 'line';
+    const isRound = ['pie','doughnut'].includes(r.chart.type);
+
+    S.chartInst = new Chart(document.getElementById(cid), {
+      type: r.chart.type,
+      data: {
+        labels: r.chart.labels,
+        datasets: r.chart.datasets.map((ds,i) => ({
+          ...ds,
+          backgroundColor: isLine ? 'transparent'
+            : isRound ? r.chart.labels.map((_,j)=>pal[j%pal.length])
+            : pal[i%pal.length],
+          borderColor: isLine ? pal[i%pal.length]
+            : isRound ? r.chart.labels.map((_,j)=>pal[j%pal.length].replace('0.85','1'))
+            : pal[i%pal.length].replace('0.85','1'),
+          borderWidth: isRound ? 1 : 1.5,
+          borderRadius: !isRound && !isLine ? 3 : 0,
+          tension: 0.4,
+          pointBackgroundColor: pal[i%pal.length],
+          pointRadius: isLine ? 4 : 0,
+          fill: isLine
+        }))
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color:'#4A5568', font:{ family:'DM Mono', size:10 }, padding:16 } }
+        },
+        scales: isRound ? {} : {
+          x: { ticks:{ color:'#4A5568', font:{family:'DM Mono',size:10} }, grid:{color:'rgba(255,255,255,0.03)'} },
+          y: { ticks:{ color:'#4A5568', font:{family:'DM Mono',size:10} }, grid:{color:'rgba(255,255,255,0.03)'} }
+        }
+      }
+    });
+  }
+}
+
+function showErr(msg) {
+  document.getElementById('respPane').innerHTML = `<div class="err-box">⚠ ${msg}</div>`;
+}
+</script>
+</body>
+</html>
