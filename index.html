@@ -457,28 +457,71 @@ async function fire(q) {
   document.getElementById('qBtn').disabled = false;
 }
 
-async function groq(question) {
-  const prompt = `Eres un analista senior de social media para ${S.proj}.
-Tienes estos datos reales (agregados desde Google Sheets):
-${JSON.stringify(S.agg, null, 1)}
+function buildPayload(question) {
+  const q = question.toLowerCase();
+  const a = S.agg;
 
-Responde ÚNICAMENTE con JSON válido. Sin texto previo, sin backticks, solo el objeto JSON:
-{
-  "insight": "Análisis principal. 2-3 párrafos claros y accionables en español. No repitas datos crudos, interprétalos.",
-  "metrics": [{"label": "Nombre", "value": "Valor formateado"}],
-  "chart": {"type": "bar", "title": "Título", "labels": ["A","B"], "datasets": [{"label": "Serie", "data": [1,2]}]}
+  // Detect what the question is about and send ONLY relevant data
+  const wants = {
+    campaign: /campa[ñn]/i.test(q),
+    format:   /format|tipo.*cont|contenido/i.test(q),
+    platform: /plataforma|platform|canal|red social/i.test(q),
+    reach:    /alcance|reach/i.test(q),
+    eng:      /engagement|interacc/i.test(q),
+    time:     /semana|día|fecha|evoluci/i.test(q),
+    top:      /top|mejor|mayor|más/i.test(q),
+  };
+
+  const ctx = {
+    totalRows: a.totalRows,
+    dateRange: a.dateRange,
+    numericColumns: a.numericColumns,
+    globalTotals: a.globalTotals,
+  };
+
+  // Only attach group breakdowns that are relevant to the question
+  if (wants.campaign || wants.top || (!wants.format && !wants.platform))
+    ctx.byCampaign = compressGroup(a.byCampaign, a.numericColumns, 10);
+  if (wants.format)
+    ctx.byFormat = compressGroup(a.byFormat, a.numericColumns, 10);
+  if (wants.platform)
+    ctx.byPlatform = compressGroup(a.byPlatform, a.numericColumns, 10);
+  if (!wants.campaign && !wants.format && !wants.platform)
+    ctx.byPlatform = compressGroup(a.byPlatform, a.numericColumns, 8);
+
+  return JSON.stringify(ctx);
 }
-Reglas: máximo 4 métricas, chart puede ser bar/line/pie/doughnut o null si no aplica.
-Pregunta: ${question}`;
+
+// Only keep total per numeric column per group — drop avg, count noise
+function compressGroup(group, numCols, maxKeys) {
+  const entries = Object.entries(group).slice(0, maxKeys);
+  const out = {};
+  entries.forEach(([k, v]) => {
+    out[k] = { n: v.count };
+    numCols.slice(0, 6).forEach(c => { if (v[c]) out[k][c] = v[c].total; });
+  });
+  return out;
+}
+
+async function groq(question) {
+  const payload = buildPayload(question);
+
+  const prompt = `Analista senior de social media para ${S.proj}. Datos reales de Google Sheets:
+${payload}
+
+Responde SOLO con JSON válido (sin texto extra, sin backticks):
+{"insight":"2-3 párrafos accionables en español. Interpreta, no repitas números crudos.","metrics":[{"label":"Nombre","value":"Valor"}],"chart":{"type":"bar","title":"Título","labels":["A"],"datasets":[{"label":"Serie","data":[1]}]}}
+Reglas: máximo 4 métricas. chart type: bar/line/pie/doughnut o null.
+PREGUNTA: ${question}`;
 
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${S.key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.2,
-      max_tokens: 1500
+      max_tokens: 900
     })
   });
 
