@@ -8,234 +8,188 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:    #070A10;
-  --s1:    #0D1220;
-  --s2:    #121828;
-  --b:     rgba(255,255,255,0.06);
-  --b2:    rgba(255,255,255,0.1);
-  --cyan:  #00E5FF;
-  --green: #00FF94;
-  --yellow:#FFD60A;
-  --coral: #FF4D6D;
-  --text:  #CBD5E8;
-  --dim:   #4A5568;
-  --white: #F0F4FF;
+:root{
+  --bg:#070A10;--s1:#0D1220;--s2:#121828;
+  --b:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.1);
+  --cyan:#00E5FF;--green:#00FF94;--yellow:#FFD60A;--coral:#FF4D6D;
+  --text:#CBD5E8;--dim:#4A5568;--white:#F0F4FF;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;position:relative;}
-body::before{
-  content:'';position:fixed;inset:0;
-  background-image:
-    linear-gradient(rgba(0,229,255,0.018) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(0,229,255,0.018) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;z-index:0;
-}
-body::after{
-  content:'';position:fixed;inset:0;
-  background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(0,229,255,0.06) 0%,transparent 70%);
-  pointer-events:none;z-index:0;
-}
-
-/* ── MODAL ── */
-.overlay{
-  position:fixed;inset:0;background:rgba(4,6,12,0.97);
-  z-index:999;display:flex;align-items:center;justify-content:center;
-}
-.modal{
-  background:var(--s1);border:1px solid var(--b2);
-  padding:44px 48px;width:min(600px,94vw);position:relative;overflow:hidden;
-}
-.modal::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--cyan),var(--green),transparent);
-}
-.m-eyebrow{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--cyan);margin-bottom:10px;}
-.m-title{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--white);line-height:1;margin-bottom:4px;}
-.m-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);margin-bottom:32px;}
-
-/* free badge */
-.free-badge{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(0,255,148,0.08);border:1px solid rgba(0,255,148,0.25);
-  padding:8px 14px;margin-bottom:28px;
-}
-.free-badge span{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:1px;}
-
-.f-group{margin-bottom:18px;}
+body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.018) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(0,229,255,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.overlay{position:fixed;inset:0;background:rgba(4,6,12,0.97);z-index:999;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:24px 0;}
+.modal{background:var(--s1);border:1px solid var(--b2);padding:38px 44px;width:min(640px,94vw);position:relative;overflow:hidden;margin:auto;}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--green),transparent);}
+.m-eye{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--cyan);margin-bottom:8px;}
+.m-title{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--white);line-height:1;margin-bottom:4px;}
+.m-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);margin-bottom:24px;}
+.steps{display:flex;gap:6px;margin-bottom:24px;}
+.step-dot{flex:1;height:3px;background:var(--b2);}
+.step-dot.done{background:var(--green);}
+.step-dot.active{background:var(--cyan);}
+.f-group{margin-bottom:15px;}
 .f-label{display:block;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--cyan);margin-bottom:6px;}
-.f-input{
-  width:100%;background:var(--bg);border:1px solid var(--b2);
-  color:var(--white);padding:12px 16px;font-family:'DM Mono',monospace;font-size:12px;
-  outline:none;transition:border-color 0.2s;
-}
-.f-input:focus{border-color:var(--cyan);}
+.f-input,.f-select{width:100%;background:var(--bg);border:1px solid var(--b2);color:var(--white);padding:11px 14px;font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s;}
+.f-input:focus,.f-select:focus{border-color:var(--cyan);}
+.f-select option{background:var(--s1);}
 .f-hint{margin-top:5px;font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);line-height:1.6;}
 .f-hint a{color:var(--cyan);text-decoration:none;}
 .f-hint strong{color:var(--yellow);}
+.btn-main{width:100%;padding:14px;background:var(--cyan);color:var(--bg);border:none;font-family:'Manrope',sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:opacity 0.15s;margin-top:6px;}
+.btn-main:hover{opacity:0.85;}
+.btn-main:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-sec{width:100%;padding:12px;background:transparent;color:var(--cyan);border:1px solid var(--b2);font-family:'Manrope',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all 0.15s;margin-top:8px;}
+.btn-sec:hover{border-color:var(--cyan);}
+.preview-wrap{overflow:auto;max-height:150px;margin-bottom:16px;border:1px solid var(--b);}
+.preview-wrap::-webkit-scrollbar{width:3px;height:3px;}
+.preview-wrap::-webkit-scrollbar-thumb{background:var(--b2);}
+.prev-table{border-collapse:collapse;font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap;width:100%;}
+.prev-table th{background:var(--s2);color:var(--cyan);padding:5px 10px;border:1px solid var(--b);text-align:left;position:sticky;top:0;z-index:1;}
+.prev-table td{padding:4px 10px;border:1px solid var(--b);color:var(--dim);max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
+.sec-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:10px;}
 
-.btn-init{
-  width:100%;padding:15px;margin-top:6px;
-  background:var(--cyan);color:var(--bg);border:none;
-  font-family:'Manrope',sans-serif;font-weight:800;font-size:13px;
-  text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:opacity 0.15s;
-}
-.btn-init:hover{opacity:0.85;}
-
-/* ── HEADER ── */
-header{
-  position:relative;z-index:10;display:flex;align-items:center;
-  justify-content:space-between;padding:0 28px;height:58px;
-  border-bottom:1px solid var(--b);background:rgba(7,10,16,0.85);backdrop-filter:blur(12px);
-}
-.logo{display:flex;align-items:center;gap:10px;}
-.logo-sq{width:26px;height:26px;border:1.5px solid var(--cyan);display:flex;align-items:center;justify-content:center;}
-.logo-sq::before{content:'';width:9px;height:9px;background:var(--cyan);}
-.logo-name{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;}
+/* APP */
+header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:0 26px;height:56px;border-bottom:1px solid var(--b);background:rgba(7,10,16,0.85);backdrop-filter:blur(12px);}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-sq{width:24px;height:24px;border:1.5px solid var(--cyan);display:flex;align-items:center;justify-content:center;}
+.logo-sq::before{content:'';width:8px;height:8px;background:var(--cyan);}
+.logo-name{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--white);letter-spacing:1px;}
 .logo-ver{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);border:1px solid var(--b2);padding:2px 6px;}
-.h-pills{display:flex;gap:6px;}
-.h-pill{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border:1px solid var(--b);color:var(--dim);text-transform:uppercase;}
-.h-right{display:flex;align-items:center;gap:10px;}
+.h-pills{display:flex;gap:5px;}
+.h-pill{font-family:'DM Mono',monospace;font-size:10px;padding:4px 9px;border:1px solid var(--b);color:var(--dim);text-transform:uppercase;}
+.h-right{display:flex;align-items:center;gap:9px;}
 .status{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
 .dot.pulse{animation:pulse 2s infinite;}
 .dot.err{background:var(--coral);animation:none;}
 .dot.warn{background:var(--yellow);animation:none;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
-.btn-sm{background:transparent;border:1px solid var(--b2);color:var(--dim);padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all 0.15s;}
+.btn-sm{background:transparent;border:1px solid var(--b2);color:var(--dim);padding:5px 11px;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
 .btn-sm:hover{border-color:var(--cyan);color:var(--cyan);}
-
-/* ── LAYOUT ── */
-.layout{position:relative;z-index:1;display:grid;grid-template-columns:290px 1fr;height:calc(100vh - 58px);}
-
-/* ── SIDEBAR ── */
+.layout{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 56px);}
 .sidebar{border-right:1px solid var(--b);display:flex;flex-direction:column;overflow:hidden;}
-.sb-block{padding:18px;border-bottom:1px solid var(--b);}
-.sb-scroll{flex:1;overflow-y:auto;padding:18px;}
+.sb-block{padding:15px;border-bottom:1px solid var(--b);}
+.sb-scroll{flex:1;overflow-y:auto;padding:15px;}
 .sb-scroll::-webkit-scrollbar{width:3px;}
 .sb-scroll::-webkit-scrollbar-thumb{background:var(--b2);}
-.sec-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:12px;}
-
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
-.kpi{background:var(--s2);border:1px solid var(--b);padding:10px 11px;position:relative;overflow:hidden;}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.kpi{background:var(--s2);border:1px solid var(--b);padding:9px 11px;position:relative;}
 .kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--cyan);opacity:0.2;}
 .kpi.hi::after{background:var(--green);opacity:0.4;}
-.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);line-height:1;}
+.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);line-height:1;}
 .kpi.hi .kpi-val{color:var(--cyan);}
-.kpi-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-top:2px;}
-
-.rbar{height:2px;background:var(--b);position:relative;margin-top:10px;}
+.kpi-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--dim);margin-top:2px;}
+.rbar{height:2px;background:var(--b);position:relative;margin-top:9px;}
 .rbar-p{position:absolute;left:0;top:0;height:100%;background:var(--cyan);opacity:0.4;transition:width 1s linear;}
-
 .qlist{display:flex;flex-direction:column;gap:3px;}
-.qbtn{
-  background:transparent;border:1px solid var(--b);color:var(--text);
-  padding:8px 10px;text-align:left;font-family:'Manrope',sans-serif;font-size:11px;font-weight:600;
-  cursor:pointer;transition:all 0.12s;line-height:1.3;
-}
+.qbtn{background:transparent;border:1px solid var(--b);color:var(--text);padding:8px 10px;text-align:left;font-family:'Manrope',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.12s;line-height:1.3;}
 .qbtn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,0.04);}
 .qbtn::before{content:'→ ';color:var(--cyan);opacity:0;transition:opacity 0.12s;}
 .qbtn:hover::before{opacity:1;}
-
 .tags{display:flex;flex-wrap:wrap;gap:3px;}
 .tag{font-family:'DM Mono',monospace;font-size:8px;padding:2px 6px;border:1px solid var(--b);color:var(--dim);text-transform:uppercase;}
-.tag.num{border-color:rgba(0,229,255,0.2);color:rgba(0,229,255,0.6);}
-
-/* ── MAIN ── */
+.tag.ok{border-color:rgba(0,255,148,0.3);color:var(--green);}
+.tag.no{opacity:0.35;}
 .main{display:flex;flex-direction:column;overflow:hidden;}
-.qbar{padding:18px 24px;border-bottom:1px solid var(--b);background:var(--s1);flex-shrink:0;}
-.q-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:8px;}
+.qbar{padding:15px 22px;border-bottom:1px solid var(--b);background:var(--s1);flex-shrink:0;}
+.q-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:7px;}
 .q-row{display:flex;border:1px solid var(--b2);transition:border-color 0.2s;}
 .q-row:focus-within{border-color:var(--cyan);}
-.q-input{flex:1;background:transparent;border:none;color:var(--white);padding:13px 16px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:600;outline:none;}
+.q-input{flex:1;background:transparent;border:none;color:var(--white);padding:12px 15px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:600;outline:none;}
 .q-input::placeholder{color:var(--dim);font-weight:400;}
-.q-send{background:var(--cyan);border:none;color:var(--bg);padding:13px 22px;font-family:'Manrope',sans-serif;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;}
+.q-send{background:var(--cyan);border:none;color:var(--bg);padding:12px 20px;font-family:'Manrope',sans-serif;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;}
 .q-send:hover{opacity:0.85;}
 .q-send:disabled{opacity:0.35;cursor:not-allowed;}
-
-.resp-pane{flex:1;overflow-y:auto;padding:24px;scroll-behavior:smooth;}
+.resp-pane{flex:1;overflow-y:auto;padding:22px;}
 .resp-pane::-webkit-scrollbar{width:4px;}
 .resp-pane::-webkit-scrollbar-thumb{background:var(--b2);}
-
 .empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
-.empty-icon{font-size:32px;opacity:0.12;}
-.empty-t{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);opacity:0.18;letter-spacing:2px;}
+.empty-icon{font-size:30px;opacity:0.12;}
+.empty-t{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);opacity:0.18;letter-spacing:2px;}
 .empty-s{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);text-align:center;max-width:240px;line-height:1.6;}
-
 .loading{display:flex;align-items:center;gap:12px;padding:20px 0;font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);}
 .spinner{width:16px;height:16px;border:2px solid var(--b2);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
-/* ── RESPONSE CARD ── */
 .rcard{animation:slideUp 0.3s ease;}
 @keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-
-.r-echo{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.r-echo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
 .r-q{font-family:'DM Mono',monospace;font-size:11px;color:var(--cyan);background:rgba(0,229,255,0.06);border-left:2px solid var(--cyan);padding:6px 12px;flex:1;}
 .r-ts{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);}
-
-.r-insight{background:var(--s1);border:1px solid var(--b);border-left:3px solid var(--green);padding:20px;font-size:13.5px;line-height:1.75;color:var(--text);margin-bottom:18px;white-space:pre-wrap;}
-
-.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:18px;}
-.mc{background:var(--s1);border:1px solid var(--b);padding:13px;position:relative;overflow:hidden;}
+.r-insight{background:var(--s1);border:1px solid var(--b);border-left:3px solid var(--green);padding:18px;font-size:13.5px;line-height:1.75;color:var(--text);margin-bottom:16px;white-space:pre-wrap;}
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:7px;margin-bottom:16px;}
+.mc{background:var(--s1);border:1px solid var(--b);padding:12px;position:relative;}
 .mc::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:var(--cyan);}
-.mc-val{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--white);line-height:1;}
-.mc-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-top:4px;}
-
-.chart-box{background:var(--s1);border:1px solid var(--b);padding:20px;margin-bottom:18px;}
-.chart-hd{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.mc-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);line-height:1;}
+.mc-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--dim);margin-top:4px;}
+.chart-box{background:var(--s1);border:1px solid var(--b);padding:18px;margin-bottom:16px;}
+.chart-hd{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .chart-hd::before{content:'';width:10px;height:2px;background:var(--cyan);}
-canvas{max-height:260px;}
-
+canvas{max-height:250px;}
 .err-box{background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.25);border-left:3px solid var(--coral);padding:14px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--coral);line-height:1.6;}
 </style>
 </head>
 <body>
 
-<!-- MODAL -->
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="m-eyebrow">Social Media Analytics · MVP</div>
-    <div class="m-title">SOCIAL<br>INTEL</div>
-    <div class="m-sub">Conecta tu Google Sheets · Pregunta en español · Sin costo</div>
+<!-- ══ PASO 1: CONEXIÓN ══ -->
+<div class="overlay" id="ov1">
+<div class="modal">
+  <div class="m-eye">Social Intel · Setup</div>
+  <div class="m-title">CONECTA<br>TU DATA</div>
+  <div class="m-sub">Paso 1 de 2 — Conexión y credenciales</div>
+  <div class="steps"><div class="step-dot active"></div><div class="step-dot"></div></div>
 
-    <div class="free-badge">
-      <span>✓ 100% Gratis · Sin tarjeta · Sin límite práctico de uso</span>
-    </div>
-
-    <div class="f-group">
-      <label class="f-label">URL de tu Google Sheets (CSV publicado)</label>
-      <input class="f-input" id="sheetsUrl" type="text" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv">
-      <div class="f-hint">
-        En tu Sheet → <strong>Archivo → Compartir → Publicar en la web → CSV</strong> → copia esa URL
-      </div>
-    </div>
-
-    <div class="f-group">
-      <label class="f-label">Groq API Key — <span style="color:var(--green)">gratis, sin tarjeta</span></label>
-      <input class="f-input" id="groqKey" type="password" placeholder="gsk_...">
-      <div class="f-hint">
-        → Entra a <a href="https://console.groq.com" target="_blank">console.groq.com</a><br>
-        → Sign up con Google (2 clics)<br>
-        → En el menú izquierdo: <strong>"API Keys" → "Create API Key"</strong><br>
-        → Copia la key que empieza con <strong>gsk_</strong><br>
-        Límites gratis: 30 req/min · 14,400 req/día · $0 siempre
-      </div>
-    </div>
-
-    <div class="f-group">
-      <label class="f-label">Nombre del proyecto</label>
-      <input class="f-input" id="projName" type="text" value="Samsung Mobile México">
-    </div>
-
-    <div class="f-group">
-      <label class="f-label">Auto-refresh cada (minutos)</label>
-      <input class="f-input" id="refreshMins" type="number" value="5" min="1" max="60">
-    </div>
-
-    <button class="btn-init" onclick="boot()">Inicializar Dashboard →</button>
+  <div class="f-group">
+    <label class="f-label">URL de tu Google Sheets (CSV publicado)</label>
+    <input class="f-input" id="sheetsUrl" type="text" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv">
+    <div class="f-hint"><strong>Archivo → Compartir → Publicar en la web → CSV</strong> → copia esa URL exacta</div>
   </div>
+
+  <div class="f-group">
+    <label class="f-label">Groq API Key — <span style="color:var(--green)">100% gratis · sin tarjeta</span></label>
+    <input class="f-input" id="groqKey" type="password" placeholder="gsk_...">
+    <div class="f-hint">→ <a href="https://console.groq.com" target="_blank">console.groq.com</a> → Sign up con Google → API Keys → Create API Key</div>
+  </div>
+
+  <div class="f-group">
+    <label class="f-label">Nombre del proyecto</label>
+    <input class="f-input" id="projName" type="text" value="Samsung Mobile México">
+  </div>
+
+  <div class="f-group">
+    <label class="f-label">¿En qué fila están los headers de tu Sheet?</label>
+    <input class="f-input" id="headerRow" type="number" value="1" min="1" max="10">
+    <div class="f-hint">Si hay filas de título o secciones antes de los nombres de columna reales, indica el número de fila correcto. Normalmente es 1.</div>
+  </div>
+
+  <button class="btn-main" id="btnStep1" onclick="step1()">Cargar Sheet y continuar →</button>
+</div>
+</div>
+
+<!-- ══ PASO 2: MAPEO ══ -->
+<div class="overlay" id="ov2" style="display:none">
+<div class="modal">
+  <div class="m-eye">Social Intel · Setup</div>
+  <div class="m-title">MAPEA TUS<br>COLUMNAS</div>
+  <div class="m-sub">Paso 2 de 2 — Dile al sistema qué columna es qué métrica</div>
+  <div class="steps"><div class="step-dot done"></div><div class="step-dot active"></div></div>
+
+  <div class="f-hint" style="color:var(--yellow);margin-bottom:14px;">
+    ⚡ Esto garantiza que el análisis sea correcto. Solo lo configuras una vez.
+  </div>
+
+  <div class="sec-lbl">Vista previa de tus datos (primeras 4 filas)</div>
+  <div class="preview-wrap" id="previewWrap"></div>
+
+  <div class="sec-lbl" style="margin-top:16px;">Asigna cada métrica a su columna real</div>
+  <div class="map-grid" id="mapGrid"></div>
+
+  <div class="f-hint" style="margin-bottom:14px;">Deja "— No aplica —" si esa métrica no existe en tu Sheet.</div>
+  <button class="btn-main" onclick="step2()">Inicializar Dashboard →</button>
+  <button class="btn-sec" onclick="document.getElementById('ov2').style.display='none';document.getElementById('ov1').style.display='flex'">← Volver</button>
+</div>
 </div>
 
 <!-- HEADER -->
@@ -250,18 +204,15 @@ canvas{max-height:260px;}
     <div class="h-pill" id="rowCountPill">0 registros</div>
   </div>
   <div class="h-right">
-    <div class="status">
-      <div class="dot pulse" id="sDot"></div>
-      <span id="sTxt">Conectando...</span>
-    </div>
-    <button class="btn-sm" onclick="refreshData()">↻ Actualizar</button>
-    <button class="btn-sm" onclick="document.getElementById('overlay').style.display='flex'">⚙ Config</button>
+    <div class="status"><div class="dot pulse" id="sDot"></div><span id="sTxt">Live</span></div>
+    <button class="btn-sm" onclick="refreshData()">↻ Sync</button>
+    <button class="btn-sm" onclick="document.getElementById('ov2').style.display='flex'">⚙ Columnas</button>
+    <button class="btn-sm" onclick="document.getElementById('ov1').style.display='flex'">⚙ Config</button>
   </div>
 </header>
 
 <!-- LAYOUT -->
 <div class="layout" id="layout" style="display:none">
-
   <aside class="sidebar">
     <div class="sb-block">
       <div class="sec-lbl">Dataset overview</div>
@@ -273,24 +224,22 @@ canvas{max-height:260px;}
       </div>
       <div class="rbar"><div class="rbar-p" id="rbarP" style="width:100%"></div></div>
     </div>
-
     <div class="sb-block">
       <div class="sec-lbl">Preguntas rápidas</div>
       <div class="qlist">
         <button class="qbtn" onclick="fire('¿Cuál es el formato con mayor alcance?')">Formato con mayor alcance</button>
         <button class="qbtn" onclick="fire('¿Qué tipo de contenido genera más engagement?')">Contenido con más engagement</button>
-        <button class="qbtn" onclick="fire('¿Cuál es la campaña con mejor desempeño general?')">Campaña con mejor desempeño</button>
-        <button class="qbtn" onclick="fire('¿Qué plataforma tiene mejor tasa de engagement?')">Mejor plataforma por engagement</button>
-        <button class="qbtn" onclick="fire('¿Cómo evoluciona el alcance semana a semana?')">Evolución semanal del alcance</button>
-        <button class="qbtn" onclick="fire('Dame un resumen ejecutivo del rendimiento general')">Resumen ejecutivo completo</button>
-        <button class="qbtn" onclick="fire('¿Cuáles son los 3 posts con más alcance?')">Top 3 publicaciones</button>
-        <button class="qbtn" onclick="fire('¿Qué día de la semana tiene mejor rendimiento?')">Mejor día de la semana</button>
+        <button class="qbtn" onclick="fire('¿Cuál es la campaña con mejor desempeño?')">Campaña con mejor desempeño</button>
+        <button class="qbtn" onclick="fire('¿Qué plataforma tiene mejor tasa de engagement?')">Mejor plataforma por ER</button>
+        <button class="qbtn" onclick="fire('¿Cómo se compara el alcance entre campañas?')">Comparativa de campañas</button>
+        <button class="qbtn" onclick="fire('Dame un resumen ejecutivo del rendimiento general')">Resumen ejecutivo</button>
+        <button class="qbtn" onclick="fire('¿Cuáles son las 3 publicaciones con más alcance?')">Top 3 publicaciones</button>
+        <button class="qbtn" onclick="fire('¿Qué plataforma tiene mayor volumen de publicaciones?')">Volumen por plataforma</button>
       </div>
     </div>
-
     <div class="sb-scroll">
-      <div class="sec-lbl">Columnas detectadas</div>
-      <div class="tags" id="colTags"><span class="tag">Cargando...</span></div>
+      <div class="sec-lbl">Columnas mapeadas</div>
+      <div class="tags" id="colTags"><span class="tag">—</span></div>
     </div>
   </aside>
 
@@ -299,7 +248,7 @@ canvas{max-height:260px;}
       <div class="q-lbl">Pregunta en lenguaje natural sobre tus datos</div>
       <div class="q-row">
         <input type="text" class="q-input" id="qInput"
-          placeholder="Ej: ¿Cómo le fue a la campaña Galaxy S26 vs Buds4?"
+          placeholder="Ej: ¿Cuál fue la campaña con más alcance en Instagram?"
           onkeydown="if(event.key==='Enter')send()">
         <button class="q-send" id="qBtn" onclick="send()">Analizar →</button>
       </div>
@@ -315,281 +264,280 @@ canvas{max-height:260px;}
 </div>
 
 <script>
-const S = { url:'', key:'', proj:'', mins:5, rows:[], cols:[], agg:null, busy:false, chart:null, secs:0, iv:null };
+const S={
+  url:'',key:'',proj:'',headerRow:1,
+  rows:[],cols:[],
+  M:{campaign:null,format:null,platform:null,date:null,
+     reach:null,impressions:null,engagement:null,
+     likes:null,comments:null,shares:null,views:null,er:null},
+  agg:null,busy:false,chart:null,secs:0,iv:null
+};
 
-function boot() {
-  const url  = document.getElementById('sheetsUrl').value.trim();
-  const key  = document.getElementById('groqKey').value.trim();
-  const proj = document.getElementById('projName').value.trim() || 'Dashboard';
-  const mins = parseInt(document.getElementById('refreshMins').value) || 5;
-  if (!url || !key) { alert('Necesitas la URL del Sheet y tu Groq API key.'); return; }
-  S.url = url; S.key = key; S.proj = proj; S.mins = mins;
-  document.getElementById('overlay').style.display = 'none';
-  document.getElementById('hdr').style.display = 'flex';
-  document.getElementById('layout').style.display = 'grid';
-  document.getElementById('projBadge').textContent = proj;
-  refreshData();
-  if (S.iv) clearInterval(S.iv);
-  S.secs = mins * 60;
-  S.iv = setInterval(() => {
-    S.secs--;
-    document.getElementById('rbarP').style.width = ((S.secs / (S.mins * 60)) * 100) + '%';
-    if (S.secs <= 0) { refreshData(); S.secs = S.mins * 60; }
-  }, 1000);
+const ML={
+  campaign:'Campaña',format:'Formato / Tipo contenido',platform:'Plataforma / Red social',
+  date:'Fecha / Semana / Periodo',reach:'Alcance (Reach)',impressions:'Impresiones',
+  engagement:'Engagement / Interacciones',likes:'Likes / Me gusta',
+  comments:'Comentarios',shares:'Compartidos',views:'Reproducciones / Views',er:'Tasa ER%'
+};
+
+// ── STEP 1 ────────────────────────────────────────────────────────────────
+async function step1(){
+  const url=document.getElementById('sheetsUrl').value.trim();
+  const key=document.getElementById('groqKey').value.trim();
+  const proj=document.getElementById('projName').value.trim()||'Dashboard';
+  const hrow=parseInt(document.getElementById('headerRow').value)||1;
+  if(!url||!key){alert('Necesitas la URL del Sheet y tu Groq API Key.');return;}
+  S.url=url;S.key=key;S.proj=proj;S.headerRow=hrow;
+  const btn=document.getElementById('btnStep1');
+  btn.textContent='Cargando...';btn.disabled=true;
+  try{
+    await loadCSV();
+    buildMapUI();
+    document.getElementById('ov1').style.display='none';
+    document.getElementById('ov2').style.display='flex';
+  }catch(e){alert('Error al leer el Sheet:\n\n'+e.message);}
+  btn.textContent='Cargar Sheet y continuar →';btn.disabled=false;
 }
 
-async function refreshData() {
-  setStatus('loading');
-  try {
-    const csv = normUrl(S.url);
-    const res = await fetch(csv + '&nocache=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const txt = await res.text();
-    const p = Papa.parse(txt, { header:true, skipEmptyLines:true, dynamicTyping:true, transformHeader: h => h.trim() });
-    if (!p.data.length) throw new Error('Sheet vacío');
-    S.rows = p.data; S.cols = p.meta.fields || [];
-    S.agg = aggregate(S.rows, S.cols);
-    updateSidebar();
-    setStatus('ok');
-  } catch(e) { setStatus('err', e.message); }
-  S.secs = S.mins * 60;
-}
-
-function normUrl(u) {
-  if (u.includes('output=csv') || u.includes('format=csv')) return u;
-  const m = u.match(/\/d\/([a-zA-Z0-9-_]+)/);
-  if (m) {
-    const g = u.match(/gid=(\d+)/);
-    return `https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv&gid=${g?g[1]:'0'}`;
+async function loadCSV(){
+  let u=S.url;
+  if(!u.includes('output=csv')&&!u.includes('format=csv')){
+    const m=u.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if(m){const g=u.match(/gid=(\d+)/);u=`https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv&gid=${g?g[1]:'0'}`;}
   }
-  return u;
+  const res=await fetch(u+'&nocache='+Date.now());
+  if(!res.ok)throw new Error('HTTP '+res.status+' — verifica que la URL sea CSV publicado');
+  let txt=await res.text();
+  if(S.headerRow>1){
+    const lines=txt.split('\n');
+    txt=lines.slice(S.headerRow-1).join('\n');
+  }
+  const p=Papa.parse(txt,{header:true,skipEmptyLines:true,dynamicTyping:true,transformHeader:h=>h.trim().replace(/\s+/g,' ')});
+  if(!p.data.length)throw new Error('El Sheet no tiene datos o está vacío');
+  S.rows=p.data;S.cols=p.meta.fields||[];
 }
 
-function aggregate(rows, cols) {
-  const numCols = cols.filter(c => rows.slice(0,40).filter(r => typeof r[c]==='number').length > 4);
-  const find = (...kw) => cols.find(c => kw.some(k => c.toLowerCase().replace(/\s/g,'').includes(k)));
-  const D = {
-    campaign: find('campa','campaign'),
-    format:   find('format','tipodecont','content'),
-    platform: find('plataforma','platform','canal','channel','network','red'),
-    date:     find('fecha','date','semana','week'),
-    reach:    find('alcance','reach'),
-    eng:      find('engagement','interacc'),
-    imp:      find('impres'),
+// ── BUILD MAPPING UI ──────────────────────────────────────────────────────
+function buildMapUI(){
+  const cols=S.cols,rows=S.rows;
+  // Preview: first 4 rows, first 10 cols
+  const pcols=cols.slice(0,10),prows=rows.slice(0,4);
+  document.getElementById('previewWrap').innerHTML=
+    `<table class="prev-table"><thead><tr>${pcols.map(c=>`<th title="${c}">${c.length>16?c.slice(0,16)+'…':c}</th>`).join('')}</tr></thead><tbody>${
+      prows.map(r=>'<tr>'+pcols.map(c=>`<td>${r[c]??''}</td>`).join('')+'</tr>').join('')
+    }</tbody></table>`;
+
+  const opts='<option value="">— No aplica —</option>'+cols.map(c=>`<option value="${c}">${c}</option>`).join('');
+
+  // Auto-guess
+  const guess=(...kw)=>cols.find(c=>kw.some(k=>c.toLowerCase().replace(/\s/g,'').includes(k)))||'';
+  const G={
+    campaign:guess('campa','campaign'),
+    format:guess('format','tipodecont','content','clasificaci','tipo de cont','tipo cont'),
+    platform:guess('plataforma','platform','canal','channel','network','red social'),
+    date:guess('fecha','date','semana','week','tiempo','periodo','día'),
+    reach:guess('alcance','reach'),
+    impressions:guess('impres'),
+    engagement:guess('engagement','interacc','engagem'),
+    likes:guess('like','megusta','reacci'),
+    comments:guess('coment','comment'),
+    shares:guess('compart','share'),
+    views:guess('reprod','view','vista','play'),
+    er:guess('tasa','rate','er%','er_','tasa de eng','tasa eng'),
   };
-  const sum = (data,c) => c ? data.reduce((s,r)=>s+(Number(r[c])||0),0) : 0;
-  const groupBy = (col) => {
-    if (!col) return {};
-    const g = {};
-    rows.forEach(r => { const k=String(r[col]||'N/A'); if(!g[k])g[k]=[]; g[k].push(r); });
-    const out = {};
-    Object.entries(g).forEach(([k,v]) => {
-      out[k] = { count: v.length };
-      numCols.forEach(c => { out[k][c] = { total: Math.round(sum(v,c)), avg: Math.round(sum(v,c)/v.length) }; });
+
+  document.getElementById('mapGrid').innerHTML=Object.entries(ML).map(([k,l])=>
+    `<div><label class="f-label">${l}</label><select class="f-select" id="map_${k}">${opts}</select></div>`
+  ).join('');
+
+  Object.entries(G).forEach(([k,v])=>{const el=document.getElementById('map_'+k);if(el&&v)el.value=v;});
+}
+
+// ── STEP 2 ────────────────────────────────────────────────────────────────
+function step2(){
+  Object.keys(S.M).forEach(k=>{const el=document.getElementById('map_'+k);S.M[k]=el&&el.value?el.value:null;});
+  if(!S.M.campaign&&!S.M.platform&&!S.M.format){
+    alert('Mapea al menos Campaña, Plataforma o Formato para poder analizar.');return;
+  }
+  document.getElementById('ov2').style.display='none';
+  document.getElementById('hdr').style.display='flex';
+  document.getElementById('layout').style.display='grid';
+  document.getElementById('projBadge').textContent=S.proj;
+  S.agg=aggregate();updateSidebar();setStatus('ok');
+  if(S.iv)clearInterval(S.iv);
+  S.secs=300;
+  S.iv=setInterval(()=>{
+    S.secs--;
+    document.getElementById('rbarP').style.width=((S.secs/300)*100)+'%';
+    if(S.secs<=0){refreshData();S.secs=300;}
+  },1000);
+}
+
+async function refreshData(){
+  setStatus('loading');
+  try{await loadCSV();S.agg=aggregate();updateSidebar();setStatus('ok');}
+  catch(e){setStatus('err',e.message);}
+  S.secs=300;
+}
+
+// ── AGGREGATION ───────────────────────────────────────────────────────────
+function aggregate(){
+  const M=S.M,rows=S.rows;
+  const numCols=[M.reach,M.impressions,M.engagement,M.likes,M.comments,M.shares,M.views,M.er].filter(Boolean);
+  const sum=(data,c)=>c?data.reduce((s,r)=>s+(Number(r[c])||0),0):0;
+
+  const groupBy=(col,maxK=20)=>{
+    if(!col)return{};
+    const g={};
+    rows.forEach(r=>{const k=String(r[col]||'(vacío)');if(!g[k])g[k]=[];g[k].push(r);});
+    const out={};
+    Object.entries(g).sort((a,b)=>b[1].length-a[1].length).slice(0,maxK).forEach(([k,v])=>{
+      out[k]={n:v.length};
+      numCols.forEach(c=>{if(c)out[k][c]=Math.round(sum(v,c));});
     });
     return out;
   };
-  let dateRange = 'N/A';
-  if (D.date) {
-    const dates = rows.map(r=>r[D.date]).filter(Boolean).map(String).sort();
-    if (dates.length) dateRange = `${dates[0]} → ${dates[dates.length-1]}`;
-  }
-  const globalTotals = {};
-  numCols.forEach(c => { globalTotals[c] = { total: Math.round(sum(rows,c)), avg: Math.round(sum(rows,c)/rows.length) }; });
 
-  return {
-    totalRows: rows.length,
-    columns: cols,
-    numericColumns: numCols,
-    detectedMappings: D,
-    dateRange,
-    campaigns:  Object.keys(groupBy(D.campaign)),
-    formats:    Object.keys(groupBy(D.format)),
-    platforms:  Object.keys(groupBy(D.platform)),
-    globalTotals,
-    byCampaign: groupBy(D.campaign),
-    byFormat:   groupBy(D.format),
-    byPlatform: groupBy(D.platform),
-    sample: rows.slice(0,3)
+  let dateRange='N/A';
+  if(M.date){const d=rows.map(r=>r[M.date]).filter(Boolean).map(String).sort();if(d.length)dateRange=`${d[0]} → ${d[d.length-1]}`;}
+
+  const globalTotals={};
+  numCols.forEach(c=>{if(c)globalTotals[c]={total:Math.round(sum(rows,c)),avg:Math.round(sum(rows,c)/rows.length)};});
+
+  const byCampaign=groupBy(M.campaign);
+  const byFormat=groupBy(M.format);
+  const byPlatform=groupBy(M.platform);
+
+  // Top 10 rows by reach
+  const topByReach=M.reach
+    ?[...rows].sort((a,b)=>(Number(b[M.reach])||0)-(Number(a[M.reach])||0)).slice(0,10)
+      .map(r=>{const o={};Object.values(M).filter(Boolean).forEach(c=>{o[c]=r[c];});return o;})
+    :[];
+
+  return{totalRows:rows.length,columnMapping:M,numericColumns:numCols,
+    dateRange,globalTotals,
+    campaigns:Object.keys(byCampaign),formats:Object.keys(byFormat),platforms:Object.keys(byPlatform),
+    byCampaign,byFormat,byPlatform,topByReach};
+}
+
+function updateSidebar(){
+  const a=S.agg;
+  document.getElementById('kC').textContent=a.campaigns.length||'—';
+  document.getElementById('kF').textContent=a.formats.length  ||'—';
+  document.getElementById('kP').textContent=a.platforms.length||'—';
+  document.getElementById('kS').textContent=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('dateRangePill').textContent=a.dateRange!=='N/A'?a.dateRange:'Sin fechas';
+  document.getElementById('rowCountPill').textContent=a.totalRows.toLocaleString()+' registros';
+  document.getElementById('colTags').innerHTML=Object.entries(ML).map(([k,l])=>{
+    const col=S.M[k];
+    return `<span class="tag ${col?'ok':'no'}">${l.split('/')[0].trim()}${col?': ✓':': —'}</span>`;
+  }).join('');
+}
+
+function setStatus(t,msg){
+  const dot=document.getElementById('sDot'),txt=document.getElementById('sTxt');
+  if(t==='ok'){dot.className='dot pulse';txt.textContent='Live · actualizado';}
+  else if(t==='loading'){dot.className='dot warn';txt.textContent='Sincronizando...';}
+  else{dot.className='dot err';txt.textContent=msg||'Error';}
+}
+
+// ── QUERY ─────────────────────────────────────────────────────────────────
+function send(){const q=document.getElementById('qInput').value.trim();if(q)fire(q);}
+
+async function fire(q){
+  if(S.busy)return;
+  if(!S.agg){showErr('Datos no listos. Haz clic en ↻ Sync.');return;}
+  S.busy=true;
+  document.getElementById('qBtn').disabled=true;
+  document.getElementById('qInput').value=q;
+  const empt=document.getElementById('emptyState');
+  if(empt)empt.style.display='none';
+  document.getElementById('respPane').innerHTML='<div class="loading"><div class="spinner"></div><span>Analizando con Llama 3.1...</span></div>';
+  try{render(q,await callGroq(q));}
+  catch(e){document.getElementById('respPane').innerHTML=`<div class="err-box">⚠ ${e.message}</div>`;}
+  S.busy=false;document.getElementById('qBtn').disabled=false;
+}
+
+function buildPayload(q){
+  const a=S.agg,M=S.M,ql=q.toLowerCase();
+  const ctx={
+    totalRows:a.totalRows,
+    dateRange:a.dateRange,
+    columnMapping:{
+      campaña:M.campaign,formato:M.format,plataforma:M.platform,fecha:M.date,
+      alcance:M.reach,impresiones:M.impressions,engagement:M.engagement,
+      likes:M.likes,comentarios:M.comments,compartidos:M.shares,vistas:M.views,er:M.er
+    },
+    globalTotals:a.globalTotals,
   };
-}
-
-function updateSidebar() {
-  const a = S.agg;
-  document.getElementById('kC').textContent = a.campaigns.length || '—';
-  document.getElementById('kF').textContent = a.formats.length   || '—';
-  document.getElementById('kP').textContent = a.platforms.length || '—';
-  document.getElementById('kS').textContent = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('dateRangePill').textContent = a.dateRange !== 'N/A' ? a.dateRange : 'Sin fechas';
-  document.getElementById('rowCountPill').textContent  = a.totalRows.toLocaleString() + ' registros';
-  document.getElementById('colTags').innerHTML = S.cols.map(c =>
-    `<span class="tag ${a.numericColumns.includes(c)?'num':''}">${c}</span>`
-  ).join('');
-}
-
-function setStatus(t, msg) {
-  const dot = document.getElementById('sDot');
-  const txt = document.getElementById('sTxt');
-  if (t==='ok')       { dot.className='dot pulse'; txt.textContent='Live · datos actualizados'; }
-  else if (t==='loading') { dot.className='dot warn'; txt.textContent='Sincronizando...'; }
-  else                { dot.className='dot err'; txt.textContent=msg||'Error'; }
-}
-
-function send() { const q=document.getElementById('qInput').value.trim(); if(q) fire(q); }
-
-async function fire(q) {
-  if (S.busy) return;
-  if (!S.agg) { showErr('Datos no cargados. Haz clic en ↻ Actualizar.'); return; }
-  S.busy = true;
-  document.getElementById('qBtn').disabled = true;
-  document.getElementById('qInput').value = q;
-  const empt = document.getElementById('emptyState');
-  if (empt) empt.style.display = 'none';
-  const pane = document.getElementById('respPane');
-  pane.innerHTML = `<div class="loading"><div class="spinner"></div><span>Analizando con Llama 3.3...</span></div>`;
-  try {
-    const r = await groq(q);
-    render(q, r);
-  } catch(e) {
-    pane.innerHTML = `<div class="err-box">⚠ Error: ${e.message}</div>`;
-  }
-  S.busy = false;
-  document.getElementById('qBtn').disabled = false;
-}
-
-function buildPayload(question) {
-  const q = question.toLowerCase();
-  const a = S.agg;
-
-  // Detect what the question is about and send ONLY relevant data
-  const wants = {
-    campaign: /campa[ñn]/i.test(q),
-    format:   /format|tipo.*cont|contenido/i.test(q),
-    platform: /plataforma|platform|canal|red social/i.test(q),
-    reach:    /alcance|reach/i.test(q),
-    eng:      /engagement|interacc/i.test(q),
-    time:     /semana|día|fecha|evoluci/i.test(q),
-    top:      /top|mejor|mayor|más/i.test(q),
-  };
-
-  const ctx = {
-    totalRows: a.totalRows,
-    dateRange: a.dateRange,
-    numericColumns: a.numericColumns,
-    globalTotals: a.globalTotals,
-  };
-
-  // Only attach group breakdowns that are relevant to the question
-  if (wants.campaign || wants.top || (!wants.format && !wants.platform))
-    ctx.byCampaign = compressGroup(a.byCampaign, a.numericColumns, 10);
-  if (wants.format)
-    ctx.byFormat = compressGroup(a.byFormat, a.numericColumns, 10);
-  if (wants.platform)
-    ctx.byPlatform = compressGroup(a.byPlatform, a.numericColumns, 10);
-  if (!wants.campaign && !wants.format && !wants.platform)
-    ctx.byPlatform = compressGroup(a.byPlatform, a.numericColumns, 8);
-
+  const wC=/campa/i.test(ql),wF=/format|contenido|tipo/i.test(ql),wP=/plataforma|instagram|tiktok|facebook|youtube|canal/i.test(ql),wT=/top|mayor|más alto|mejor|cuáles/i.test(ql);
+  if(wC||wT||(!wF&&!wP))ctx.byCampaign=a.byCampaign;
+  if(wF)ctx.byFormat=a.byFormat;
+  if(wP)ctx.byPlatform=a.byPlatform;
+  if(!wC&&!wF&&!wP){ctx.byPlatform=a.byPlatform;ctx.byFormat=a.byFormat;}
+  if(wT&&a.topByReach.length)ctx.topByReach=a.topByReach.slice(0,5);
   return JSON.stringify(ctx);
 }
 
-// Only keep total per numeric column per group — drop avg, count noise
-function compressGroup(group, numCols, maxKeys) {
-  const entries = Object.entries(group).slice(0, maxKeys);
-  const out = {};
-  entries.forEach(([k, v]) => {
-    out[k] = { n: v.count };
-    numCols.slice(0, 6).forEach(c => { if (v[c]) out[k][c] = v[c].total; });
-  });
-  return out;
-}
-
-async function groq(question) {
-  const payload = buildPayload(question);
-
-  const prompt = `Analista senior de social media para ${S.proj}. Datos reales de Google Sheets:
+async function callGroq(q){
+  const payload=buildPayload(q);
+  const prompt=`Eres analista senior de social media para ${S.proj}.
+Tienes datos reales de Google Sheets con columnas correctamente identificadas en "columnMapping":
 ${payload}
 
-Responde SOLO con JSON válido (sin texto extra, sin backticks):
-{"insight":"2-3 párrafos accionables en español. Interpreta, no repitas números crudos.","metrics":[{"label":"Nombre","value":"Valor"}],"chart":{"type":"bar","title":"Título","labels":["A"],"datasets":[{"label":"Serie","data":[1]}]}}
-Reglas: máximo 4 métricas. chart type: bar/line/pie/doughnut o null.
-PREGUNTA: ${question}`;
+Usa "columnMapping" para entender exactamente qué representa cada número. Los datos son reales y exactos.
+Responde SOLO con JSON válido sin texto extra ni backticks:
+{"insight":"2-3 párrafos analíticos en español. Cita cifras específicas. Interpreta patrones y da recomendaciones accionables.","metrics":[{"label":"Nombre","value":"Valor con unidad"}],"chart":{"type":"bar","title":"Título","labels":["A","B"],"datasets":[{"label":"Serie","data":[1,2]}]}}
+Máximo 4 métricas. chart: bar/line/pie/doughnut o null.
+PREGUNTA: ${q}`;
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${S.key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'llama-3.1-8b-instant',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.2,
-      max_tokens: 900
-    })
+  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Authorization':`Bearer ${S.key}`,'Content-Type':'application/json'},
+    body:JSON.stringify({model:'llama-3.1-8b-instant',messages:[{role:'user',content:prompt}],temperature:0.15,max_tokens:900})
   });
-
-  if (!res.ok) {
-    const e = await res.json().catch(()=>({}));
-    throw new Error(e.error?.message || `HTTP ${res.status}`);
-  }
-
-  const data = await res.json();
-  const raw  = data.choices?.[0]?.message?.content || '';
-  const m    = raw.match(/\{[\s\S]*\}/);
-  if (!m) throw new Error('Respuesta inválida del modelo. Intenta de nuevo.');
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+res.status);}
+  const data=await res.json();
+  const raw=data.choices?.[0]?.message?.content||'';
+  const m=raw.match(/\{[\s\S]*\}/);
+  if(!m)throw new Error('Respuesta inválida. Intenta de nuevo.');
   return JSON.parse(m[0]);
 }
 
-function render(question, r) {
-  const pane = document.getElementById('respPane');
-  const ts   = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const cid  = 'c' + Date.now();
-  const pal  = ['rgba(0,229,255,0.85)','rgba(0,255,148,0.85)','rgba(255,214,10,0.85)','rgba(255,77,109,0.85)','rgba(168,85,247,0.85)'];
-
-  pane.innerHTML = `
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render(q,r){
+  const pane=document.getElementById('respPane');
+  const ts=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const cid='c'+Date.now();
+  const pal=['rgba(0,229,255,0.85)','rgba(0,255,148,0.85)','rgba(255,214,10,0.85)','rgba(255,77,109,0.85)','rgba(168,85,247,0.85)'];
+  pane.innerHTML=`
     <div class="rcard">
-      <div class="r-echo">
-        <div class="r-q">${question}</div>
-        <div class="r-ts">${ts}</div>
-      </div>
+      <div class="r-echo"><div class="r-q">${q}</div><div class="r-ts">${ts}</div></div>
       <div class="r-insight">${r.insight}</div>
-      ${r.metrics?.length ? `<div class="metrics-row">${r.metrics.map(m=>`
-        <div class="mc"><div class="mc-val">${m.value}</div><div class="mc-lbl">${m.label}</div></div>`).join('')}
-      </div>` : ''}
-      ${r.chart ? `<div class="chart-box">
-        <div class="chart-hd">${r.chart.title||'Visualización'}</div>
-        <canvas id="${cid}"></canvas>
-      </div>` : ''}
+      ${r.metrics?.length?`<div class="metrics-row">${r.metrics.map(m=>`<div class="mc"><div class="mc-val">${m.value}</div><div class="mc-lbl">${m.label}</div></div>`).join('')}</div>`:''}
+      ${r.chart?`<div class="chart-box"><div class="chart-hd">${r.chart.title||'Visualización'}</div><canvas id="${cid}"></canvas></div>`:''}
     </div>`;
-
-  if (r.chart && document.getElementById(cid)) {
-    if (S.chart) S.chart.destroy();
-    const isRound = ['pie','doughnut'].includes(r.chart.type);
-    const isLine  = r.chart.type === 'line';
-    S.chart = new Chart(document.getElementById(cid), {
-      type: r.chart.type,
-      data: {
-        labels: r.chart.labels,
-        datasets: r.chart.datasets.map((ds,i) => ({
-          ...ds,
-          backgroundColor: isLine ? 'transparent' : isRound ? r.chart.labels.map((_,j)=>pal[j%pal.length]) : pal[i%pal.length],
-          borderColor: isLine ? pal[i%pal.length] : isRound ? r.chart.labels.map((_,j)=>pal[j%pal.length].replace('0.85','1')) : pal[i%pal.length].replace('0.85','1'),
-          borderWidth: 1.5, borderRadius: (!isRound&&!isLine)?3:0,
-          tension: 0.4, pointRadius: isLine?4:0, fill: isLine
-        }))
-      },
-      options: {
-        responsive:true,
-        plugins:{ legend:{ labels:{ color:'#4A5568', font:{family:'DM Mono',size:10}, padding:14 } } },
-        scales: isRound ? {} : {
-          x:{ ticks:{color:'#4A5568',font:{family:'DM Mono',size:10}}, grid:{color:'rgba(255,255,255,0.03)'} },
-          y:{ ticks:{color:'#4A5568',font:{family:'DM Mono',size:10}}, grid:{color:'rgba(255,255,255,0.03)'} }
-        }
-      }
+  if(r.chart&&document.getElementById(cid)){
+    if(S.chart)S.chart.destroy();
+    const isRound=['pie','doughnut'].includes(r.chart.type),isLine=r.chart.type==='line';
+    S.chart=new Chart(document.getElementById(cid),{
+      type:r.chart.type,
+      data:{labels:r.chart.labels,datasets:r.chart.datasets.map((ds,i)=>({
+        ...ds,
+        backgroundColor:isLine?'transparent':isRound?r.chart.labels.map((_,j)=>pal[j%pal.length]):pal[i%pal.length],
+        borderColor:isLine?pal[i%pal.length]:isRound?r.chart.labels.map((_,j)=>pal[j%pal.length].replace('0.85','1')):pal[i%pal.length].replace('0.85','1'),
+        borderWidth:1.5,borderRadius:(!isRound&&!isLine)?3:0,tension:0.4,pointRadius:isLine?4:0,fill:isLine
+      }))},
+      options:{responsive:true,
+        plugins:{legend:{labels:{color:'#4A5568',font:{family:'DM Mono',size:10},padding:14}}},
+        scales:isRound?{}:{
+          x:{ticks:{color:'#4A5568',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}},
+          y:{ticks:{color:'#4A5568',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}}
+        }}
     });
   }
 }
-
-function showErr(msg) {
-  document.getElementById('respPane').innerHTML = `<div class="err-box">⚠ ${msg}</div>`;
-}
+function showErr(msg){document.getElementById('respPane').innerHTML=`<div class="err-box">⚠ ${msg}</div>`;}
 </script>
 </body>
 </html>
