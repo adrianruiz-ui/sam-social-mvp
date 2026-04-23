@@ -3,541 +3,509 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Social Intel · Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<title>Samsung MX · Social Intel</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#070A10;--s1:#0D1220;--s2:#121828;
-  --b:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.1);
-  --cyan:#00E5FF;--green:#00FF94;--yellow:#FFD60A;--coral:#FF4D6D;
-  --text:#CBD5E8;--dim:#4A5568;--white:#F0F4FF;
+  --bg:#06080F;--s1:#0A0E1A;--s2:#0F1422;
+  --line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.13);
+  --ice:#7FDBFF;--mint:#3DFFC0;--amber:#FFB800;--rose:#FF5C7D;--violet:#A78BFA;
+  --text:#8B95B0;--text2:#C8D0E8;--white:#EEF2FF;--dim:#3A4257;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.018) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(0,229,255,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
-.overlay{position:fixed;inset:0;background:rgba(4,6,12,0.97);z-index:999;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:24px 0;}
-.modal{background:var(--s1);border:1px solid var(--b2);padding:38px 44px;width:min(640px,94vw);position:relative;overflow:hidden;margin:auto;}
-.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--green),transparent);}
-.m-eye{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--cyan);margin-bottom:8px;}
-.m-title{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--white);line-height:1;margin-bottom:4px;}
-.m-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);margin-bottom:24px;}
-.steps{display:flex;gap:6px;margin-bottom:24px;}
-.step-dot{flex:1;height:3px;background:var(--b2);}
-.step-dot.done{background:var(--green);}
-.step-dot.active{background:var(--cyan);}
-.f-group{margin-bottom:15px;}
-.f-label{display:block;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--cyan);margin-bottom:6px;}
-.f-input,.f-select{width:100%;background:var(--bg);border:1px solid var(--b2);color:var(--white);padding:11px 14px;font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s;}
-.f-input:focus,.f-select:focus{border-color:var(--cyan);}
-.f-select option{background:var(--s1);}
-.f-hint{margin-top:5px;font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);line-height:1.6;}
-.f-hint a{color:var(--cyan);text-decoration:none;}
-.f-hint strong{color:var(--yellow);}
-.btn-main{width:100%;padding:14px;background:var(--cyan);color:var(--bg);border:none;font-family:'Manrope',sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:opacity 0.15s;margin-top:6px;}
-.btn-main:hover{opacity:0.85;}
-.btn-main:disabled{opacity:0.4;cursor:not-allowed;}
-.btn-sec{width:100%;padding:12px;background:transparent;color:var(--cyan);border:1px solid var(--b2);font-family:'Manrope',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all 0.15s;margin-top:8px;}
-.btn-sec:hover{border-color:var(--cyan);}
-.preview-wrap{overflow:auto;max-height:150px;margin-bottom:16px;border:1px solid var(--b);}
-.preview-wrap::-webkit-scrollbar{width:3px;height:3px;}
-.preview-wrap::-webkit-scrollbar-thumb{background:var(--b2);}
-.prev-table{border-collapse:collapse;font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap;width:100%;}
-.prev-table th{background:var(--s2);color:var(--cyan);padding:5px 10px;border:1px solid var(--b);text-align:left;position:sticky;top:0;z-index:1;}
-.prev-table td{padding:4px 10px;border:1px solid var(--b);color:var(--dim);max-width:140px;overflow:hidden;text-overflow:ellipsis;}
-.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
-.sec-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:10px;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+
+/* SETUP */
+.setup-overlay{position:fixed;inset:0;background:rgba(3,4,10,0.97);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.setup-box{background:var(--s1);border:1px solid var(--line2);padding:52px 56px;width:min(520px,92vw);position:relative;}
+.setup-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--ice) 40%,var(--mint) 70%,transparent);}
+.s-eye{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--ice);margin-bottom:14px;}
+.s-title{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:var(--white);line-height:0.95;letter-spacing:-1px;margin-bottom:8px;}
+.s-sub{font-size:13px;color:var(--text);margin-bottom:36px;line-height:1.5;}
+.s-label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:8px;}
+.s-input{width:100%;background:rgba(0,0,0,0.35);border:1px solid var(--line2);border-bottom-color:rgba(127,219,255,0.2);color:var(--white);padding:13px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;margin-bottom:6px;}
+.s-input:focus{border-color:rgba(127,219,255,0.45);background:rgba(127,219,255,0.03);}
+.s-hint{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);line-height:1.7;margin-bottom:24px;}
+.s-hint a{color:var(--ice);text-decoration:none;}
+.s-btn{width:100%;padding:15px;background:var(--ice);color:#05080F;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:2.5px;cursor:pointer;transition:opacity 0.15s;}
+.s-btn:hover{opacity:0.85;}
+.s-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(61,255,192,0.08);border:1px solid rgba(61,255,192,0.2);padding:5px 12px;margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mint);text-transform:uppercase;letter-spacing:1px;}
+
+/* HEADER */
+header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:52px;border-bottom:1px solid var(--line);background:rgba(6,8,15,0.94);backdrop-filter:blur(20px);}
+.logo{display:flex;align-items:center;gap:14px;}
+.logo-mark{width:20px;height:20px;position:relative;display:flex;align-items:center;justify-content:center;}
+.logo-mark::before{content:'';position:absolute;inset:0;border:1px solid rgba(127,219,255,0.5);transform:rotate(45deg);}
+.logo-mark::after{content:'';width:7px;height:7px;background:var(--ice);transform:rotate(45deg);}
+.logo-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--white);}
+.logo-client{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);border-left:1px solid var(--line2);padding-left:12px;margin-left:4px;}
+.h-stats{display:flex;gap:0;}
+.hstat{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);padding:0 14px;border-left:1px solid var(--line);}
+.hstat span{color:var(--text2);}
+.h-right{display:flex;align-items:center;gap:8px;}
+.live{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mint);padding:4px 10px;border:1px solid rgba(61,255,192,0.2);background:rgba(61,255,192,0.04);text-transform:uppercase;letter-spacing:1px;}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--mint);animation:lp 2s infinite;}
+@keyframes lp{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hbtn{background:transparent;border:1px solid var(--line2);color:var(--dim);padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all 0.15s;}
+.hbtn:hover{border-color:var(--ice);color:var(--ice);}
 
 /* APP */
-header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:0 26px;height:56px;border-bottom:1px solid var(--b);background:rgba(7,10,16,0.85);backdrop-filter:blur(12px);}
-.logo{display:flex;align-items:center;gap:9px;}
-.logo-sq{width:24px;height:24px;border:1.5px solid var(--cyan);display:flex;align-items:center;justify-content:center;}
-.logo-sq::before{content:'';width:8px;height:8px;background:var(--cyan);}
-.logo-name{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--white);letter-spacing:1px;}
-.logo-ver{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);border:1px solid var(--b2);padding:2px 6px;}
-.h-pills{display:flex;gap:5px;}
-.h-pill{font-family:'DM Mono',monospace;font-size:10px;padding:4px 9px;border:1px solid var(--b);color:var(--dim);text-transform:uppercase;}
-.h-right{display:flex;align-items:center;gap:9px;}
-.status{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
-.dot.pulse{animation:pulse 2s infinite;}
-.dot.err{background:var(--coral);animation:none;}
-.dot.warn{background:var(--yellow);animation:none;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
-.btn-sm{background:transparent;border:1px solid var(--b2);color:var(--dim);padding:5px 11px;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
-.btn-sm:hover{border-color:var(--cyan);color:var(--cyan);}
-.layout{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 56px);}
-.sidebar{border-right:1px solid var(--b);display:flex;flex-direction:column;overflow:hidden;}
-.sb-block{padding:15px;border-bottom:1px solid var(--b);}
-.sb-scroll{flex:1;overflow-y:auto;padding:15px;}
-.sb-scroll::-webkit-scrollbar{width:3px;}
-.sb-scroll::-webkit-scrollbar-thumb{background:var(--b2);}
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
-.kpi{background:var(--s2);border:1px solid var(--b);padding:9px 11px;position:relative;}
-.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--cyan);opacity:0.2;}
-.kpi.hi::after{background:var(--green);opacity:0.4;}
-.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);line-height:1;}
-.kpi.hi .kpi-val{color:var(--cyan);}
-.kpi-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--dim);margin-top:2px;}
-.rbar{height:2px;background:var(--b);position:relative;margin-top:9px;}
-.rbar-p{position:absolute;left:0;top:0;height:100%;background:var(--cyan);opacity:0.4;transition:width 1s linear;}
-.qlist{display:flex;flex-direction:column;gap:3px;}
-.qbtn{background:transparent;border:1px solid var(--b);color:var(--text);padding:8px 10px;text-align:left;font-family:'Manrope',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.12s;line-height:1.3;}
-.qbtn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,0.04);}
-.qbtn::before{content:'→ ';color:var(--cyan);opacity:0;transition:opacity 0.12s;}
-.qbtn:hover::before{opacity:1;}
-.tags{display:flex;flex-wrap:wrap;gap:3px;}
-.tag{font-family:'DM Mono',monospace;font-size:8px;padding:2px 6px;border:1px solid var(--b);color:var(--dim);text-transform:uppercase;}
-.tag.ok{border-color:rgba(0,255,148,0.3);color:var(--green);}
-.tag.no{opacity:0.35;}
+.app{display:grid;grid-template-columns:268px 1fr;height:calc(100vh - 52px);position:relative;z-index:1;}
+
+/* SIDEBAR */
+.sidebar{border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;background:rgba(10,14,26,0.4);}
+.sb-sec{padding:16px;border-bottom:1px solid var(--line);}
+.sb-scroll{flex:1;overflow-y:auto;padding:16px;}
+.sb-scroll::-webkit-scrollbar{width:2px;}
+.sb-scroll::-webkit-scrollbar-thumb{background:var(--line2);}
+.slbl{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.slbl::after{content:'';flex:1;height:1px;background:var(--line);}
+
+/* KPI grid */
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.kbox{background:var(--s2);border:1px solid var(--line);padding:11px 12px;position:relative;overflow:hidden;}
+.kbox-bar{position:absolute;top:0;left:0;right:0;height:1.5px;}
+.kbox-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);line-height:1;margin-bottom:4px;}
+.kbox-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);}
+
+/* Refresh bar */
+.rbar{height:1px;background:var(--line);margin-top:12px;position:relative;}
+.rbar-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--ice),var(--mint));opacity:0.5;transition:width 1s linear;}
+
+/* Quick questions */
+.qlist{display:flex;flex-direction:column;gap:2px;}
+.qbtn{background:transparent;border:none;border-left:2px solid transparent;color:var(--text);padding:9px 10px 9px 12px;text-align:left;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.12s;line-height:1.35;}
+.qbtn:hover{border-left-color:var(--ice);color:var(--white);background:rgba(127,219,255,0.04);}
+
+/* Dataset tags */
+.dtags{display:flex;flex-wrap:wrap;gap:3px;}
+.dtag{font-family:'JetBrains Mono',monospace;font-size:8px;padding:3px 7px;border:1px solid var(--line);color:var(--dim);text-transform:uppercase;}
+.dtag.ok{border-color:rgba(61,255,192,0.2);color:rgba(61,255,192,0.55);}
+
+/* MAIN */
 .main{display:flex;flex-direction:column;overflow:hidden;}
-.qbar{padding:15px 22px;border-bottom:1px solid var(--b);background:var(--s1);flex-shrink:0;}
-.q-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:7px;}
-.q-row{display:flex;border:1px solid var(--b2);transition:border-color 0.2s;}
-.q-row:focus-within{border-color:var(--cyan);}
-.q-input{flex:1;background:transparent;border:none;color:var(--white);padding:12px 15px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:600;outline:none;}
-.q-input::placeholder{color:var(--dim);font-weight:400;}
-.q-send{background:var(--cyan);border:none;color:var(--bg);padding:12px 20px;font-family:'Manrope',sans-serif;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;}
-.q-send:hover{opacity:0.85;}
-.q-send:disabled{opacity:0.35;cursor:not-allowed;}
-.resp-pane{flex:1;overflow-y:auto;padding:22px;}
-.resp-pane::-webkit-scrollbar{width:4px;}
-.resp-pane::-webkit-scrollbar-thumb{background:var(--b2);}
-.empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
-.empty-icon{font-size:30px;opacity:0.12;}
-.empty-t{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);opacity:0.18;letter-spacing:2px;}
-.empty-s{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);text-align:center;max-width:240px;line-height:1.6;}
-.loading{display:flex;align-items:center;gap:12px;padding:20px 0;font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);}
-.spinner{width:16px;height:16px;border:2px solid var(--b2);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.rcard{animation:slideUp 0.3s ease;}
-@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.r-echo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-.r-q{font-family:'DM Mono',monospace;font-size:11px;color:var(--cyan);background:rgba(0,229,255,0.06);border-left:2px solid var(--cyan);padding:6px 12px;flex:1;}
-.r-ts{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);}
-.r-insight{background:var(--s1);border:1px solid var(--b);border-left:3px solid var(--green);padding:18px;font-size:13.5px;line-height:1.75;color:var(--text);margin-bottom:16px;white-space:pre-wrap;}
-.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:7px;margin-bottom:16px;}
-.mc{background:var(--s1);border:1px solid var(--b);padding:12px;position:relative;}
-.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:var(--cyan);}
-.mc-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);line-height:1;}
-.mc-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--dim);margin-top:4px;}
-.chart-box{background:var(--s1);border:1px solid var(--b);padding:18px;margin-bottom:16px;}
-.chart-hd{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.chart-hd::before{content:'';width:10px;height:2px;background:var(--cyan);}
-canvas{max-height:250px;}
-.err-box{background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.25);border-left:3px solid var(--coral);padding:14px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--coral);line-height:1.6;}
+.qbar{padding:16px 24px;border-bottom:1px solid var(--line);background:rgba(10,14,26,0.6);flex-shrink:0;}
+.qbar-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:8px;}
+.qrow{display:flex;border:1px solid var(--line2);background:var(--s1);transition:border-color 0.2s;}
+.qrow:focus-within{border-color:rgba(127,219,255,0.4);box-shadow:0 0 0 1px rgba(127,219,255,0.07);}
+.qico{display:flex;align-items:center;padding:0 14px;color:var(--dim);font-size:13px;flex-shrink:0;}
+.qinput{flex:1;background:transparent;border:none;color:var(--white);padding:13px 0;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;outline:none;}
+.qinput::placeholder{color:var(--dim);font-weight:400;}
+.qsend{background:var(--ice);border:none;color:#05080F;padding:13px 22px;font-family:'Inter',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all 0.15s;flex-shrink:0;}
+.qsend:hover{background:#A8EEFF;}
+.qsend:disabled{opacity:0.35;cursor:not-allowed;}
+
+/* Response */
+.resp{flex:1;overflow-y:auto;padding:28px 32px;}
+.resp::-webkit-scrollbar{width:3px;}
+.resp::-webkit-scrollbar-thumb{background:var(--line2);}
+.empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.empty-mark{width:44px;height:44px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;transform:rotate(45deg);opacity:0.25;}
+.empty-mark::after{content:'';width:12px;height:12px;background:var(--line2);}
+.empty-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);opacity:0.15;letter-spacing:2px;}
+.empty-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);text-align:center;max-width:280px;line-height:1.7;}
+.loading{display:flex;align-items:center;gap:14px;padding:24px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);}
+.spin{width:16px;height:16px;border:1.5px solid var(--line2);border-top-color:var(--ice);border-radius:50%;animation:sp 0.8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* Card */
+.card{animation:cu 0.35s cubic-bezier(0.16,1,0.3,1);}
+@keyframes cu{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.cq-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:22px;}
+.cq-badge{flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--ice);background:rgba(127,219,255,0.08);border:1px solid rgba(127,219,255,0.15);padding:4px 8px;text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.cq-text{font-family:'Inter',sans-serif;font-size:16px;font-weight:600;color:var(--white);line-height:1.4;flex:1;}
+.cq-ts{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);flex-shrink:0;margin-top:5px;}
+.insight{background:var(--s1);border:1px solid var(--line);border-left:none;padding:22px 28px;font-size:14px;line-height:1.82;color:var(--text2);margin-bottom:18px;position:relative;white-space:pre-wrap;}
+.insight::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--mint),rgba(61,255,192,0.1));}
+.insight::after{content:'ANÁLISIS';position:absolute;top:14px;right:18px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim);opacity:0.4;text-transform:uppercase;}
+.mrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:18px;}
+.mcard{background:var(--s1);border:1px solid var(--line);padding:15px;position:relative;overflow:hidden;}
+.mcard-bar{position:absolute;top:0;left:0;right:0;height:1.5px;}
+.mcard-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--white);line-height:1;margin-bottom:6px;letter-spacing:-0.5px;}
+.mcard-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);}
+.cbox{background:var(--s1);border:1px solid var(--line);padding:22px 22px 18px;margin-bottom:18px;}
+.cbox-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.cbox-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--text2);}
+.cbox-type{font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);border:1px solid var(--line);padding:3px 8px;}
+canvas{max-height:260px;}
+.errbox{background:rgba(255,92,125,0.04);border:1px solid rgba(255,92,125,0.2);border-left:2px solid var(--rose);padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,92,125,0.8);line-height:1.7;}
 </style>
 </head>
 <body>
 
-<!-- ══ PASO 1: CONEXIÓN ══ -->
-<div class="overlay" id="ov1">
-<div class="modal">
-  <div class="m-eye">Social Intel · Setup</div>
-  <div class="m-title">CONECTA<br>TU DATA</div>
-  <div class="m-sub">Paso 1 de 2 — Conexión y credenciales</div>
-  <div class="steps"><div class="step-dot active"></div><div class="step-dot"></div></div>
-
-  <div class="f-group">
-    <label class="f-label">URL de tu Google Sheets (CSV publicado)</label>
-    <input class="f-input" id="sheetsUrl" type="text" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv">
-    <div class="f-hint"><strong>Archivo → Compartir → Publicar en la web → CSV</strong> → copia esa URL exacta</div>
+<!-- ══ SETUP MODAL ══ -->
+<div class="setup-overlay" id="setupModal">
+<div class="setup-box">
+  <div class="s-eye">Samsung MX · Social Intelligence</div>
+  <div class="s-title">Activa el<br>dashboard</div>
+  <div class="s-sub">Una sola vez. Tu clave se guarda localmente y no vuelves a verla.</div>
+  <div class="s-badge">✓ Datos Samsung MX pre-cargados · Nov 2025 – Abr 2026</div>
+  <label class="s-label">Groq API Key</label>
+  <input class="s-input" id="setupKey" type="password" placeholder="gsk_..." autocomplete="off">
+  <div class="s-hint">
+    → <a href="https://console.groq.com" target="_blank">console.groq.com</a> → Sign up con Google → API Keys → Create API Key<br>
+    Gratis · Sin tarjeta · 14,400 requests/día
   </div>
-
-  <div class="f-group">
-    <label class="f-label">Groq API Key — <span style="color:var(--green)">100% gratis · sin tarjeta</span></label>
-    <input class="f-input" id="groqKey" type="password" placeholder="gsk_...">
-    <div class="f-hint">→ <a href="https://console.groq.com" target="_blank">console.groq.com</a> → Sign up con Google → API Keys → Create API Key</div>
-  </div>
-
-  <div class="f-group">
-    <label class="f-label">Nombre del proyecto</label>
-    <input class="f-input" id="projName" type="text" value="Samsung Mobile México">
-  </div>
-
-  <div class="f-group">
-    <label class="f-label">¿En qué fila están los headers de tu Sheet?</label>
-    <input class="f-input" id="headerRow" type="number" value="1" min="1" max="10">
-    <div class="f-hint">Si hay filas de título o secciones antes de los nombres de columna reales, indica el número de fila correcto. Normalmente es 1.</div>
-  </div>
-
-  <button class="btn-main" id="btnStep1" onclick="step1()">Cargar Sheet y continuar →</button>
+  <button class="s-btn" onclick="activate()">Acceder al Dashboard →</button>
 </div>
 </div>
 
-<!-- ══ PASO 2: MAPEO ══ -->
-<div class="overlay" id="ov2" style="display:none">
-<div class="modal">
-  <div class="m-eye">Social Intel · Setup</div>
-  <div class="m-title">MAPEA TUS<br>COLUMNAS</div>
-  <div class="m-sub">Paso 2 de 2 — Dile al sistema qué columna es qué métrica</div>
-  <div class="steps"><div class="step-dot done"></div><div class="step-dot active"></div></div>
-
-  <div class="f-hint" style="color:var(--yellow);margin-bottom:14px;">
-    ⚡ Esto garantiza que el análisis sea correcto. Solo lo configuras una vez.
-  </div>
-
-  <div class="sec-lbl">Vista previa de tus datos (primeras 4 filas)</div>
-  <div class="preview-wrap" id="previewWrap"></div>
-
-  <div class="sec-lbl" style="margin-top:16px;">Asigna cada métrica a su columna real</div>
-  <div class="map-grid" id="mapGrid"></div>
-
-  <div class="f-hint" style="margin-bottom:14px;">Deja "— No aplica —" si esa métrica no existe en tu Sheet.</div>
-  <button class="btn-main" onclick="step2()">Inicializar Dashboard →</button>
-  <button class="btn-sec" onclick="document.getElementById('ov2').style.display='none';document.getElementById('ov1').style.display='flex'">← Volver</button>
-</div>
-</div>
-
-<!-- HEADER -->
+<!-- ══ HEADER ══ -->
 <header id="hdr" style="display:none">
   <div class="logo">
-    <div class="logo-sq"></div>
-    <div class="logo-name">SOCIAL INTEL</div>
-    <div class="logo-ver" id="projBadge">—</div>
+    <div class="logo-mark"></div>
+    <div class="logo-name">Social Intel</div>
+    <div class="logo-client">Samsung Mobile México</div>
   </div>
-  <div class="h-pills">
-    <div class="h-pill" id="dateRangePill">Sin fechas</div>
-    <div class="h-pill" id="rowCountPill">0 registros</div>
+  <div class="h-stats">
+    <div class="hstat">Periodo <span>Nov 25 – Abr 26</span></div>
+    <div class="hstat">Posts <span>906</span></div>
+    <div class="hstat">Plataformas <span>7</span></div>
+    <div class="hstat">Campañas <span>54</span></div>
   </div>
   <div class="h-right">
-    <div class="status"><div class="dot pulse" id="sDot"></div><span id="sTxt">Live</span></div>
-    <button class="btn-sm" onclick="refreshData()">↻ Sync</button>
-    <button class="btn-sm" onclick="document.getElementById('ov2').style.display='flex'">⚙ Columnas</button>
-    <button class="btn-sm" onclick="document.getElementById('ov1').style.display='flex'">⚙ Config</button>
+    <div class="live"><div class="live-dot"></div>Dataset activo</div>
+    <button class="hbtn" onclick="resetKey()">⊠ Cambiar Key</button>
   </div>
 </header>
 
-<!-- LAYOUT -->
-<div class="layout" id="layout" style="display:none">
+<!-- ══ APP ══ -->
+<div class="app" id="appLayout" style="display:none">
+
+  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sb-block">
-      <div class="sec-lbl">Dataset overview</div>
-      <div class="kpi-grid">
-        <div class="kpi hi"><div class="kpi-val" id="kC">—</div><div class="kpi-lbl">Campañas</div></div>
-        <div class="kpi"><div class="kpi-val" id="kF">—</div><div class="kpi-lbl">Formatos</div></div>
-        <div class="kpi"><div class="kpi-val" id="kP">—</div><div class="kpi-lbl">Plataformas</div></div>
-        <div class="kpi"><div class="kpi-val" id="kS">—</div><div class="kpi-lbl">Último sync</div></div>
+    <div class="sb-sec">
+      <div class="slbl">Totales globales</div>
+      <div class="kgrid">
+        <div class="kbox">
+          <div class="kbox-bar" style="background:linear-gradient(90deg,var(--ice),transparent)"></div>
+          <div class="kbox-val">250M</div><div class="kbox-lbl">Alcance total</div>
+        </div>
+        <div class="kbox">
+          <div class="kbox-bar" style="background:linear-gradient(90deg,var(--mint),transparent)"></div>
+          <div class="kbox-val">936M</div><div class="kbox-lbl">Views totales</div>
+        </div>
+        <div class="kbox">
+          <div class="kbox-bar" style="background:linear-gradient(90deg,var(--amber),transparent)"></div>
+          <div class="kbox-val">749K</div><div class="kbox-lbl">Reacciones</div>
+        </div>
+        <div class="kbox">
+          <div class="kbox-bar" style="background:linear-gradient(90deg,var(--violet),transparent)"></div>
+          <div class="kbox-val">3.23%</div><div class="kbox-lbl">ER prom.</div>
+        </div>
       </div>
-      <div class="rbar"><div class="rbar-p" id="rbarP" style="width:100%"></div></div>
     </div>
-    <div class="sb-block">
-      <div class="sec-lbl">Preguntas rápidas</div>
+
+    <div class="sb-sec">
+      <div class="slbl">Preguntas frecuentes</div>
       <div class="qlist">
-        <button class="qbtn" onclick="fire('¿Cuál es el formato con mayor alcance?')">Formato con mayor alcance</button>
-        <button class="qbtn" onclick="fire('¿Qué tipo de contenido genera más engagement?')">Contenido con más engagement</button>
-        <button class="qbtn" onclick="fire('¿Cuál es la campaña con mejor desempeño?')">Campaña con mejor desempeño</button>
-        <button class="qbtn" onclick="fire('¿Qué plataforma tiene mejor tasa de engagement?')">Mejor plataforma por ER</button>
-        <button class="qbtn" onclick="fire('¿Cómo se compara el alcance entre campañas?')">Comparativa de campañas</button>
-        <button class="qbtn" onclick="fire('Dame un resumen ejecutivo del rendimiento general')">Resumen ejecutivo</button>
-        <button class="qbtn" onclick="fire('¿Cuáles son las 3 publicaciones con más alcance?')">Top 3 publicaciones</button>
-        <button class="qbtn" onclick="fire('¿Qué plataforma tiene mayor volumen de publicaciones?')">Volumen por plataforma</button>
+        <button class="qbtn" onclick="ask('¿Cuál plataforma tiene más alcance?')">Mejor plataforma por alcance</button>
+        <button class="qbtn" onclick="ask('¿Cuál campaña tuvo más alcance?')">Campaña con más alcance</button>
+        <button class="qbtn" onclick="ask('¿Qué formato genera más engagement?')">Formato con más engagement</button>
+        <button class="qbtn" onclick="ask('¿Cómo le fue a la campaña Miracle?')">Resultados de Miracle</button>
+        <button class="qbtn" onclick="ask('¿Cómo le fue a la campaña Always On?')">Resultados de Always On</button>
+        <button class="qbtn" onclick="ask('¿Cuál es el top 5 de publicaciones con más alcance?')">Top 5 publicaciones</button>
+        <button class="qbtn" onclick="ask('¿Cómo están los Reels vs Videos vs Stories?')">Reels vs Videos vs Stories</button>
+        <button class="qbtn" onclick="ask('¿TikTok vs Instagram, cuál rinde mejor?')">TikTok vs Instagram</button>
+        <button class="qbtn" onclick="ask('¿Qué mes tuvo mejor rendimiento?')">Mes con mejor rendimiento</button>
+        <button class="qbtn" onclick="ask('¿Contenido pagado vs orgánico, cuál es la diferencia?')">Paid vs Orgánico</button>
+        <button class="qbtn" onclick="ask('¿Cómo va Abril 2026 vs el resto de meses?')">Abril 2026 vs otros meses</button>
+        <button class="qbtn" onclick="ask('Dame un resumen ejecutivo completo del desempeño')">Resumen ejecutivo completo</button>
       </div>
     </div>
+
     <div class="sb-scroll">
-      <div class="sec-lbl">Columnas mapeadas</div>
-      <div class="tags" id="colTags"><span class="tag">—</span></div>
+      <div class="slbl">Plataformas activas</div>
+      <div class="dtags">
+        <span class="dtag ok">Instagram · 297</span>
+        <span class="dtag ok">Facebook · 218</span>
+        <span class="dtag ok">TikTok · 117</span>
+        <span class="dtag ok">YouTube · 101</span>
+        <span class="dtag ok">X · 89</span>
+        <span class="dtag ok">Threads · 63</span>
+        <span class="dtag ok">LinkedIn · 21</span>
+      </div>
+      <div class="slbl" style="margin-top:14px;">Top campañas</div>
+      <div class="dtags">
+        <span class="dtag ok">Miracle · 365 posts</span>
+        <span class="dtag ok">Always On · 146</span>
+        <span class="dtag ok">Features S26 · 46</span>
+        <span class="dtag ok">Buen Fin · 41</span>
+        <span class="dtag ok">B7Q7 · 31</span>
+        <span class="dtag">Paradigm · 6</span>
+        <span class="dtag">Ultra Cámara · 6</span>
+      </div>
     </div>
   </aside>
 
+  <!-- MAIN -->
   <main class="main">
     <div class="qbar">
-      <div class="q-lbl">Pregunta en lenguaje natural sobre tus datos</div>
-      <div class="q-row">
-        <input type="text" class="q-input" id="qInput"
-          placeholder="Ej: ¿Cuál fue la campaña con más alcance en Instagram?"
+      <div class="qbar-lbl">Pregunta sobre los datos de Samsung MX</div>
+      <div class="qrow">
+        <div class="qico">◈</div>
+        <input type="text" class="qinput" id="qInput"
+          placeholder="Ej: ¿Cómo le fue a la campaña Miracle en Instagram?"
           onkeydown="if(event.key==='Enter')send()">
-        <button class="q-send" id="qBtn" onclick="send()">Analizar →</button>
+        <button class="qsend" id="qBtn" onclick="send()">Analizar →</button>
       </div>
     </div>
-    <div class="resp-pane" id="respPane">
+    <div class="resp" id="respPane">
       <div class="empty" id="emptyState">
-        <div class="empty-icon">◈</div>
-        <div class="empty-t">READY</div>
-        <div class="empty-s">Escribe una pregunta o selecciona una del panel izquierdo</div>
+        <div class="empty-mark"></div>
+        <div class="empty-title">LISTO</div>
+        <div class="empty-sub">Escribe tu pregunta o elige una del panel izquierdo. Los datos de Samsung MX están cargados y listos.</div>
       </div>
     </div>
   </main>
 </div>
 
 <script>
-const S={
-  url:'',key:'',proj:'',headerRow:1,
-  rows:[],cols:[],
-  M:{campaign:null,format:null,platform:null,date:null,
-     reach:null,impressions:null,engagement:null,
-     likes:null,comments:null,shares:null,views:null,er:null},
-  agg:null,busy:false,chart:null,secs:0,iv:null
+// ══ SAMSUNG MX DATASET — PRE-COMPUTADO Nov 2025 – Abr 2026 ══════════════
+const INTEL = {"por_plataforma":{"Facebook":{"posts":218,"alcance_total":18994168,"alcance_prom":87129,"impresiones":34148292,"reacciones":51343,"comentarios":3334,"compartidos":2043,"guardados":0,"views":34115918,"er_basico_prom":2.4,"er_views_prom":125.45,"vtr_prom":15.01},"Instagram":{"posts":297,"alcance_total":77321153,"alcance_prom":260341,"impresiones":104158079,"reacciones":465119,"comentarios":14031,"compartidos":20321,"guardados":18011,"views":409824121,"er_basico_prom":4.4,"er_views_prom":210.6,"vtr_prom":27.21},"YouTube":{"posts":101,"alcance_total":33818698,"alcance_prom":334839,"impresiones":0,"reacciones":20386,"comentarios":268,"compartidos":794,"guardados":0,"views":206085747,"er_basico_prom":2.65,"er_views_prom":604.52,"vtr_prom":61.01},"TikTok":{"posts":117,"alcance_total":119795976,"alcance_prom":1023897,"impresiones":0,"reacciones":208984,"comentarios":4007,"compartidos":12196,"guardados":18532,"views":286421683,"er_basico_prom":4.47,"er_views_prom":145.96,"vtr_prom":20.23},"X":{"posts":89,"alcance_total":100365,"alcance_prom":1128,"impresiones":0,"reacciones":1579,"comentarios":96,"compartidos":380,"guardados":0,"views":34652,"er_basico_prom":1.74,"er_views_prom":37.92,"vtr_prom":34.29},"LinkedIn":{"posts":21,"alcance_total":46231,"alcance_prom":2201,"impresiones":0,"reacciones":398,"comentarios":2,"compartidos":50,"guardados":0,"views":0,"er_basico_prom":2.13,"er_views_prom":2.13,"vtr_prom":0},"Threads":{"posts":63,"alcance_total":166799,"alcance_prom":2648,"impresiones":0,"reacciones":1699,"comentarios":179,"compartidos":59,"guardados":2,"views":0,"er_basico_prom":1.67,"er_views_prom":1.67,"vtr_prom":0}},"por_campaña":{"Miracle":{"posts":365,"plataformas":["Facebook","Instagram","YouTube","TikTok","X","LinkedIn","Threads"],"alcance_total":128535490,"alcance_prom":352152,"reacciones":325959,"comentarios":14194,"compartidos":16801,"views":265497689,"er_basico_prom":4.2},"Paradigm":{"posts":6,"plataformas":["Facebook","Instagram","TikTok"],"alcance_total":35071997,"alcance_prom":5845333,"reacciones":104589,"comentarios":907,"compartidos":7913,"views":340105230,"er_basico_prom":1.26},"Ultra Camara":{"posts":6,"plataformas":["Instagram","YouTube","TikTok"],"alcance_total":29067980,"alcance_prom":4844663,"reacciones":16067,"comentarios":136,"compartidos":1834,"views":206029744,"er_basico_prom":2.83},"Samsung Health":{"posts":11,"plataformas":["Instagram","YouTube","TikTok"],"alcance_total":13811057,"alcance_prom":1255551,"reacciones":35799,"comentarios":183,"compartidos":1076,"views":29768223,"er_basico_prom":1.99},"Created For You Created":{"posts":12,"plataformas":["Facebook","Instagram","TikTok"],"alcance_total":13201526,"alcance_prom":1100127,"reacciones":29813,"comentarios":447,"compartidos":1015,"views":37394458,"er_basico_prom":2.5},"Buen Fin":{"posts":41,"plataformas":["Facebook","Instagram","TikTok","X","LinkedIn","Threads"],"alcance_total":8577350,"alcance_prom":209204,"reacciones":6047,"comentarios":300,"compartidos":269,"views":10825457,"er_basico_prom":1.16},"Ruta México":{"posts":3,"plataformas":["Facebook","Instagram","TikTok"],"alcance_total":7115379,"alcance_prom":2371793,"reacciones":28260,"comentarios":320,"compartidos":760,"views":16125576,"er_basico_prom":0.34},"Created For You":{"posts":3,"plataformas":["Facebook","Instagram","YouTube"],"alcance_total":6229456,"alcance_prom":2076485,"reacciones":953,"comentarios":31,"compartidos":35,"views":15512381,"er_basico_prom":0.02},"Always On":{"posts":146,"plataformas":["Facebook","Instagram","TikTok","X","LinkedIn","Threads"],"alcance_total":2632029,"alcance_prom":18028,"reacciones":54336,"comentarios":2365,"compartidos":2618,"views":4635198,"er_basico_prom":2.42},"New Year Resolution":{"posts":10,"plataformas":["Instagram","YouTube","TikTok"],"alcance_total":2538656,"alcance_prom":253866,"reacciones":4098,"comentarios":54,"compartidos":168,"views":4818897,"er_basico_prom":1.26},"Features Galaxy S26":{"posts":46,"plataformas":["Facebook","Instagram","YouTube","TikTok","X","Threads"],"alcance_total":406745,"alcance_prom":8842,"reacciones":10008,"comentarios":366,"compartidos":210,"views":494289,"er_basico_prom":3.37},"B7Q7":{"posts":31,"plataformas":["Facebook","Instagram","TikTok","X","LinkedIn","Threads"],"alcance_total":400903,"alcance_prom":12932,"reacciones":11467,"comentarios":446,"compartidos":250,"views":833065,"er_basico_prom":3.11},"Lanzamiento Serie A57 y A37":{"posts":23,"plataformas":["Facebook","Instagram","YouTube","TikTok","LinkedIn"],"alcance_total":244224,"alcance_prom":10618,"reacciones":19797,"comentarios":824,"compartidos":480,"views":386533,"er_basico_prom":6.56},"Holiday/NewYear":{"posts":10,"plataformas":["Instagram","TikTok","X"],"alcance_total":195660,"alcance_prom":19566,"reacciones":14894,"comentarios":195,"compartidos":1151,"views":318762,"er_basico_prom":6.01},"Together Challenge":{"posts":20,"plataformas":["Facebook","Instagram","LinkedIn"],"alcance_total":131967,"alcance_prom":6598,"reacciones":1342,"comentarios":14,"compartidos":12,"views":143051,"er_basico_prom":1.53},"San Valentin":{"posts":4,"plataformas":["Instagram"],"alcance_total":100041,"alcance_prom":25010,"reacciones":3349,"comentarios":95,"compartidos":120,"views":195446,"er_basico_prom":4.28},"Tendencia":{"posts":3,"plataformas":["Instagram"],"alcance_total":87935,"alcance_prom":29312,"reacciones":5782,"comentarios":124,"compartidos":478,"views":257424,"er_basico_prom":7.04},"Super Bowl":{"posts":4,"plataformas":["Facebook","Instagram"],"alcance_total":57259,"alcance_prom":14315,"reacciones":778,"comentarios":31,"compartidos":26,"views":95506,"er_basico_prom":1.63}},"por_formato":{"Foto":{"posts":113,"alcance_total":2606340,"alcance_prom":23065,"reacciones":99181,"views":4911042,"er_basico_prom":4.75,"er_views_prom":146.12,"vtr_prom":0},"Reels":{"posts":183,"alcance_total":80948079,"alcance_prom":442339,"reacciones":290983,"views":414344715,"er_basico_prom":3.7,"er_views_prom":207.67,"vtr_prom":23.56},"Stories":{"posts":178,"alcance_total":1797671,"alcance_prom":10099,"reacciones":31361,"views":2095812,"er_basico_prom":2.24,"er_views_prom":116.41,"vtr_prom":0},"Carrusel":{"posts":65,"alcance_total":10653415,"alcance_prom":163899,"reacciones":93140,"views":22227502,"er_basico_prom":4.88,"er_views_prom":229.9,"vtr_prom":40.18},"Live":{"posts":23,"alcance_total":139245,"alcance_prom":6054,"reacciones":1307,"views":67290,"er_basico_prom":2.45,"er_views_prom":65.68,"vtr_prom":4.81},"Video":{"posts":171,"alcance_total":140637266,"alcance_prom":822440,"reacciones":214387,"views":395025972,"er_basico_prom":3.41,"er_views_prom":147.94,"vtr_prom":29.3},"Short":{"posts":54,"alcance_total":13239584,"alcance_prom":245177,"reacciones":17192,"views":97803892,"er_basico_prom":3.24,"er_views_prom":979.99,"vtr_prom":79.38},"Texto":{"posts":119,"alcance_total":221790,"alcance_prom":1864,"reacciones":1957,"views":5896,"er_basico_prom":1.53,"er_views_prom":13.85,"vtr_prom":0}},"por_mes":{"Noviembre":{"posts":153,"alcance_total":9957797,"alcance_prom":65084,"reacciones":79664,"er_basico_prom":1.92},"Diciembre":{"posts":124,"alcance_total":8400518,"alcance_prom":67746,"reacciones":67628,"er_basico_prom":2.67},"Enero":{"posts":130,"alcance_total":124328059,"alcance_prom":956370,"reacciones":233430,"er_basico_prom":2.03},"Febrero":{"posts":249,"alcance_total":60195827,"alcance_prom":241750,"reacciones":180049,"er_basico_prom":3.96},"Marzo":{"posts":148,"alcance_total":46346064,"alcance_prom":313149,"reacciones":88963,"er_basico_prom":3.04},"Abril":{"posts":102,"alcance_total":1015125,"alcance_prom":9952,"reacciones":99774,"er_basico_prom":5.91}},"por_tipo_contenido":{"Local":{"posts":627,"alcance_total":66511196,"alcance_prom":106078,"er_basico_prom":2.71},"Regional":{"posts":29,"alcance_total":284303,"alcance_prom":9804,"er_basico_prom":2.56},"Global":{"posts":213,"alcance_total":183101891,"alcance_prom":859633,"er_basico_prom":5.03}},"por_pauta":{"Orgánico":{"posts":802,"alcance_total":37357873,"alcance_prom":46581,"er_basico_prom":3.52},"Paid":{"posts":67,"alcance_total":212539517,"alcance_prom":3172232,"er_basico_prom":0.36}},"top_10_por_alcance":[{"Fecha":"2026-01-09","Plataforma":"Instagram","Campaña":"Paradigm","Formato":"Reels","Tipo":"Global","Alcance":17608607,"Reacciones":62651,"Views":256007957,"ER":"0.39%","Link":"https://www.instagram.com/reel/DTS757xgbFi/"},{"Fecha":"2026-01-16","Plataforma":"YouTube","Campaña":"Ultra Cámara","Formato":"Video","Tipo":"Global","Alcance":10592983,"Reacciones":83,"Views":82262854,"ER":"0.001%","Link":"https://www.youtube.com/watch?v=5qQAyiqrDA4"},{"Fecha":"2026-01-15","Plataforma":"YouTube","Campaña":"Ultra Cámara","Formato":"Short","Tipo":"Global","Alcance":10336690,"Reacciones":80,"Views":77521360,"ER":"0.001%","Link":"https://www.youtube.com/watch?v=CPhzdf4zwDs"},{"Fecha":"2026-01-27","Plataforma":"Instagram","Campaña":"Miracle","Formato":"Reels","Tipo":"Global","Alcance":10300410,"Reacciones":3637,"Views":34800000,"ER":"0.038%","Link":"https://www.instagram.com/reel/DUCFKvwjCfM/"},{"Fecha":"2026-01-10","Plataforma":"TikTok","Campaña":"Paradigm","Formato":"Video","Tipo":"Global","Alcance":9700000,"Reacciones":24800,"Views":57041397,"ER":"0.31%","Link":"https://www.tiktok.com/@samsungmexico/video/7593126629774216459"},{"Fecha":"2026-03-12","Plataforma":"TikTok","Campaña":"Miracle","Formato":"Video","Tipo":"Global","Alcance":8600000,"Reacciones":3820,"Views":11762821,"ER":"0.05%","Link":"https://www.tiktok.com/@samsungmexico/video/7616159485555461384"},{"Fecha":"2026-01-27","Plataforma":"Instagram","Campaña":"Miracle","Formato":"Reels","Tipo":"Global","Alcance":8230638,"Reacciones":1659,"Views":42100000,"ER":"0.022%","Link":"https://www.instagram.com/reel/DUCFi6-DAej/"},{"Fecha":"2026-01-14","Plataforma":"TikTok","Campaña":"Ultra Cámara","Formato":"Video","Tipo":"Global","Alcance":8100000,"Reacciones":14000,"Views":46184785,"ER":"0.22%","Link":"https://www.tiktok.com/@samsungmexico/video/7595407059160419591"},{"Fecha":"2026-01-09","Plataforma":"TikTok","Campaña":"Paradigm","Formato":"Video","Tipo":"Global","Alcance":7700000,"Reacciones":16000,"Views":26990247,"ER":"0.25%","Link":"https://www.tiktok.com/@samsungmexico/video/7593123800288480568"},{"Fecha":"2026-03-12","Plataforma":"TikTok","Campaña":"Miracle","Formato":"Video","Tipo":"Global","Alcance":8200000,"Reacciones":5084,"Views":10877314,"ER":"0.07%","Link":"https://www.tiktok.com/@samsungmexico/video/7616157283348778248"}],"influencer_vs_marca":{"influencer":{"posts":64,"alcance_total":31162739,"alcance_prom":486918},"marca_propia":{"posts":842,"alcance_total":219080651,"alcance_prom":260191}},"globales":{"total_posts":906,"total_alcance":250243390,"total_impresiones":138306371,"total_reacciones":749508,"total_comentarios":21917,"total_compartidos":35843,"total_views":936482121,"campañas_unicas":54,"plataformas":["Facebook","Instagram","YouTube","TikTok","X","LinkedIn","Threads"],"periodo":"Noviembre 2025 – Abril 2026","er_basico_prom_global":3.23}};
+
+// ══ STATE ══════════════════════════════════════════════════════════════
+let GROQ_KEY = localStorage.getItem('si_groq_key') || '';
+let chartInst = null;
+let busy = false;
+
+// ══ BOOT ═══════════════════════════════════════════════════════════════
+window.onload = () => {
+  if (GROQ_KEY) launch();
 };
 
-const ML={
-  campaign:'Campaña',format:'Formato / Tipo contenido',platform:'Plataforma / Red social',
-  date:'Fecha / Semana / Periodo',reach:'Alcance (Reach)',impressions:'Impresiones',
-  engagement:'Engagement / Interacciones',likes:'Likes / Me gusta',
-  comments:'Comentarios',shares:'Compartidos',views:'Reproducciones / Views',er:'Tasa ER%'
-};
-
-// ── STEP 1 ────────────────────────────────────────────────────────────────
-async function step1(){
-  const url=document.getElementById('sheetsUrl').value.trim();
-  const key=document.getElementById('groqKey').value.trim();
-  const proj=document.getElementById('projName').value.trim()||'Dashboard';
-  const hrow=parseInt(document.getElementById('headerRow').value)||1;
-  if(!url||!key){alert('Necesitas la URL del Sheet y tu Groq API Key.');return;}
-  S.url=url;S.key=key;S.proj=proj;S.headerRow=hrow;
-  const btn=document.getElementById('btnStep1');
-  btn.textContent='Cargando...';btn.disabled=true;
-  try{
-    await loadCSV();
-    buildMapUI();
-    document.getElementById('ov1').style.display='none';
-    document.getElementById('ov2').style.display='flex';
-  }catch(e){alert('Error al leer el Sheet:\n\n'+e.message);}
-  btn.textContent='Cargar Sheet y continuar →';btn.disabled=false;
+function activate() {
+  const k = document.getElementById('setupKey').value.trim();
+  if (!k || !k.startsWith('gsk_')) { alert('Ingresa una Groq API Key válida (empieza con gsk_)'); return; }
+  GROQ_KEY = k;
+  localStorage.setItem('si_groq_key', k);
+  launch();
 }
 
-async function loadCSV(){
-  let u=S.url;
-  if(!u.includes('output=csv')&&!u.includes('format=csv')){
-    const m=u.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    if(m){const g=u.match(/gid=(\d+)/);u=`https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv&gid=${g?g[1]:'0'}`;}
-  }
-  const res=await fetch(u+'&nocache='+Date.now());
-  if(!res.ok)throw new Error('HTTP '+res.status+' — verifica que la URL sea CSV publicado');
-  let txt=await res.text();
-  if(S.headerRow>1){
-    const lines=txt.split('\n');
-    txt=lines.slice(S.headerRow-1).join('\n');
-  }
-  const p=Papa.parse(txt,{header:true,skipEmptyLines:true,dynamicTyping:true,transformHeader:h=>h.trim().replace(/\s+/g,' ')});
-  if(!p.data.length)throw new Error('El Sheet no tiene datos o está vacío');
-  S.rows=p.data;S.cols=p.meta.fields||[];
+function launch() {
+  document.getElementById('setupModal').style.display = 'none';
+  document.getElementById('hdr').style.display = 'flex';
+  document.getElementById('appLayout').style.display = 'grid';
 }
 
-// ── BUILD MAPPING UI ──────────────────────────────────────────────────────
-function buildMapUI(){
-  const cols=S.cols,rows=S.rows;
-  // Preview: first 4 rows, first 10 cols
-  const pcols=cols.slice(0,10),prows=rows.slice(0,4);
-  document.getElementById('previewWrap').innerHTML=
-    `<table class="prev-table"><thead><tr>${pcols.map(c=>`<th title="${c}">${c.length>16?c.slice(0,16)+'…':c}</th>`).join('')}</tr></thead><tbody>${
-      prows.map(r=>'<tr>'+pcols.map(c=>`<td>${r[c]??''}</td>`).join('')+'</tr>').join('')
-    }</tbody></table>`;
+function resetKey() {
+  localStorage.removeItem('si_groq_key');
+  GROQ_KEY = '';
+  location.reload();
+}
 
-  const opts='<option value="">— No aplica —</option>'+cols.map(c=>`<option value="${c}">${c}</option>`).join('');
+// ══ SMART PAYLOAD BUILDER ═════════════════════════════════════════════
+// Detects what the question is about and extracts only the relevant data
+function buildContext(q) {
+  const ql = q.toLowerCase();
+  const ctx = { globales: INTEL.globales };
 
-  // Auto-guess
-  const guess=(...kw)=>cols.find(c=>kw.some(k=>c.toLowerCase().replace(/\s/g,'').includes(k)))||'';
-  const G={
-    campaign:guess('campa','campaign'),
-    format:guess('format','tipodecont','content','clasificaci','tipo de cont','tipo cont'),
-    platform:guess('plataforma','platform','canal','channel','network','red social'),
-    date:guess('fecha','date','semana','week','tiempo','periodo','día'),
-    reach:guess('alcance','reach'),
-    impressions:guess('impres'),
-    engagement:guess('engagement','interacc','engagem'),
-    likes:guess('like','megusta','reacci'),
-    comments:guess('coment','comment'),
-    shares:guess('compart','share'),
-    views:guess('reprod','view','vista','play'),
-    er:guess('tasa','rate','er%','er_','tasa de eng','tasa eng'),
+  // Platform detection
+  const platMap = { instagram:'Instagram', tiktok:'TikTok', facebook:'Facebook', youtube:'YouTube', 'you tube':'YouTube', 'x ':'X', twitter:'X', linkedin:'LinkedIn', threads:'Threads' };
+  const detectedPlats = Object.entries(platMap).filter(([k]) => ql.includes(k)).map(([,v]) => v);
+
+  // Campaign detection — fuzzy match against all campaign names
+  const allCamps = Object.keys(INTEL.por_campaña);
+  const detectedCamps = allCamps.filter(c => ql.includes(c.toLowerCase()) || c.toLowerCase().split(' ').some(w => w.length > 3 && ql.includes(w)));
+
+  // Format detection
+  const fmtMap = { reels:'Reels', video:'Video', stories:'Stories', foto:'Foto', carrusel:'Carrusel', 'short':'Short', live:'Live', texto:'Texto' };
+  const detectedFmts = Object.entries(fmtMap).filter(([k]) => ql.includes(k)).map(([,v]) => v);
+
+  // Month detection
+  const monthMap = { enero:'Enero', febrero:'Febrero', marzo:'Marzo', abril:'Abril', noviembre:'Noviembre', diciembre:'Diciembre' };
+  const detectedMonths = Object.entries(monthMap).filter(([k]) => ql.includes(k)).map(([,v]) => v);
+
+  const wants = {
+    top:      /top|mejor|mayor|más alto|más alcance|cuáles son/.test(ql),
+    eng:      /engagement|er|interacc|reacci/.test(ql),
+    platform: /plataforma|canal|red social/.test(ql) || detectedPlats.length > 0,
+    campaign: /campaña|campaign/.test(ql) || detectedCamps.length > 0,
+    format:   /formato|reels|video|stories|carrusel|foto|short/.test(ql) || detectedFmts.length > 0,
+    month:    /mes|enero|febrero|marzo|abril|noviembre|diciembre|mensual/.test(ql),
+    pauta:    /pagado|paid|orgánico|pauta/.test(ql),
+    influencer: /influencer/.test(ql),
+    compare:  /vs|versus|compara|diferencia|contra/.test(ql),
+    resumen:  /resumen|ejecutivo|overview|general/.test(ql),
   };
 
-  document.getElementById('mapGrid').innerHTML=Object.entries(ML).map(([k,l])=>
-    `<div><label class="f-label">${l}</label><select class="f-select" id="map_${k}">${opts}</select></div>`
-  ).join('');
-
-  Object.entries(G).forEach(([k,v])=>{const el=document.getElementById('map_'+k);if(el&&v)el.value=v;});
-}
-
-// ── STEP 2 ────────────────────────────────────────────────────────────────
-function step2(){
-  Object.keys(S.M).forEach(k=>{const el=document.getElementById('map_'+k);S.M[k]=el&&el.value?el.value:null;});
-  if(!S.M.campaign&&!S.M.platform&&!S.M.format){
-    alert('Mapea al menos Campaña, Plataforma o Formato para poder analizar.');return;
+  // Add specific detected entities
+  if (detectedPlats.length) {
+    ctx.plataformas_solicitadas = {};
+    detectedPlats.forEach(p => { ctx.plataformas_solicitadas[p] = INTEL.por_plataforma[p]; });
   }
-  document.getElementById('ov2').style.display='none';
-  document.getElementById('hdr').style.display='flex';
-  document.getElementById('layout').style.display='grid';
-  document.getElementById('projBadge').textContent=S.proj;
-  S.agg=aggregate();updateSidebar();setStatus('ok');
-  if(S.iv)clearInterval(S.iv);
-  S.secs=300;
-  S.iv=setInterval(()=>{
-    S.secs--;
-    document.getElementById('rbarP').style.width=((S.secs/300)*100)+'%';
-    if(S.secs<=0){refreshData();S.secs=300;}
-  },1000);
-}
+  if (detectedCamps.length) {
+    ctx.campañas_solicitadas = {};
+    detectedCamps.forEach(c => { ctx.campañas_solicitadas[c] = INTEL.por_campaña[c]; });
+  }
+  if (detectedFmts.length) {
+    ctx.formatos_solicitados = {};
+    detectedFmts.forEach(f => { ctx.formatos_solicitados[f] = INTEL.por_formato[f]; });
+  }
+  if (detectedMonths.length) {
+    ctx.meses_solicitados = {};
+    detectedMonths.forEach(m => { ctx.meses_solicitados[m] = INTEL.por_mes[m]; });
+  }
 
-async function refreshData(){
-  setStatus('loading');
-  try{await loadCSV();S.agg=aggregate();updateSidebar();setStatus('ok');}
-  catch(e){setStatus('err',e.message);}
-  S.secs=300;
-}
+  // Add broader context based on intent
+  if (wants.platform || wants.compare) ctx.por_plataforma = INTEL.por_plataforma;
+  if (wants.campaign || wants.resumen) ctx.por_campaña = INTEL.por_campaña;
+  if (wants.format) ctx.por_formato = INTEL.por_formato;
+  if (wants.month) ctx.por_mes = INTEL.por_mes;
+  if (wants.pauta) ctx.por_pauta = INTEL.por_pauta;
+  if (wants.influencer) ctx.influencer_vs_marca = INTEL.influencer_vs_marca;
+  if (wants.top) { ctx.top_10_por_alcance = INTEL.top_10_por_alcance; ctx.por_campaña = INTEL.por_campaña; }
+  if (wants.resumen) {
+    ctx.por_plataforma = INTEL.por_plataforma;
+    ctx.por_campaña = INTEL.por_campaña;
+    ctx.por_formato = INTEL.por_formato;
+    ctx.por_mes = INTEL.por_mes;
+  }
 
-// ── AGGREGATION ───────────────────────────────────────────────────────────
-function aggregate(){
-  const M=S.M,rows=S.rows;
-  const numCols=[M.reach,M.impressions,M.engagement,M.likes,M.comments,M.shares,M.views,M.er].filter(Boolean);
-  const sum=(data,c)=>c?data.reduce((s,r)=>s+(Number(r[c])||0),0):0;
-
-  const groupBy=(col,maxK=20)=>{
-    if(!col)return{};
-    const g={};
-    rows.forEach(r=>{const k=String(r[col]||'(vacío)');if(!g[k])g[k]=[];g[k].push(r);});
-    const out={};
-    Object.entries(g).sort((a,b)=>b[1].length-a[1].length).slice(0,maxK).forEach(([k,v])=>{
-      out[k]={n:v.length};
-      numCols.forEach(c=>{if(c)out[k][c]=Math.round(sum(v,c));});
-    });
-    return out;
-  };
-
-  let dateRange='N/A';
-  if(M.date){const d=rows.map(r=>r[M.date]).filter(Boolean).map(String).sort();if(d.length)dateRange=`${d[0]} → ${d[d.length-1]}`;}
-
-  const globalTotals={};
-  numCols.forEach(c=>{if(c)globalTotals[c]={total:Math.round(sum(rows,c)),avg:Math.round(sum(rows,c)/rows.length)};});
-
-  const byCampaign=groupBy(M.campaign);
-  const byFormat=groupBy(M.format);
-  const byPlatform=groupBy(M.platform);
-
-  // Top 10 rows by reach
-  const topByReach=M.reach
-    ?[...rows].sort((a,b)=>(Number(b[M.reach])||0)-(Number(a[M.reach])||0)).slice(0,10)
-      .map(r=>{const o={};Object.values(M).filter(Boolean).forEach(c=>{o[c]=r[c];});return o;})
-    :[];
-
-  return{totalRows:rows.length,columnMapping:M,numericColumns:numCols,
-    dateRange,globalTotals,
-    campaigns:Object.keys(byCampaign),formats:Object.keys(byFormat),platforms:Object.keys(byPlatform),
-    byCampaign,byFormat,byPlatform,topByReach};
-}
-
-function updateSidebar(){
-  const a=S.agg;
-  document.getElementById('kC').textContent=a.campaigns.length||'—';
-  document.getElementById('kF').textContent=a.formats.length  ||'—';
-  document.getElementById('kP').textContent=a.platforms.length||'—';
-  document.getElementById('kS').textContent=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('dateRangePill').textContent=a.dateRange!=='N/A'?a.dateRange:'Sin fechas';
-  document.getElementById('rowCountPill').textContent=a.totalRows.toLocaleString()+' registros';
-  document.getElementById('colTags').innerHTML=Object.entries(ML).map(([k,l])=>{
-    const col=S.M[k];
-    return `<span class="tag ${col?'ok':'no'}">${l.split('/')[0].trim()}${col?': ✓':': —'}</span>`;
-  }).join('');
-}
-
-function setStatus(t,msg){
-  const dot=document.getElementById('sDot'),txt=document.getElementById('sTxt');
-  if(t==='ok'){dot.className='dot pulse';txt.textContent='Live · actualizado';}
-  else if(t==='loading'){dot.className='dot warn';txt.textContent='Sincronizando...';}
-  else{dot.className='dot err';txt.textContent=msg||'Error';}
-}
-
-// ── QUERY ─────────────────────────────────────────────────────────────────
-function send(){const q=document.getElementById('qInput').value.trim();if(q)fire(q);}
-
-async function fire(q){
-  if(S.busy)return;
-  if(!S.agg){showErr('Datos no listos. Haz clic en ↻ Sync.');return;}
-  S.busy=true;
-  document.getElementById('qBtn').disabled=true;
-  document.getElementById('qInput').value=q;
-  const empt=document.getElementById('emptyState');
-  if(empt)empt.style.display='none';
-  document.getElementById('respPane').innerHTML='<div class="loading"><div class="spinner"></div><span>Analizando con Llama 3.1...</span></div>';
-  try{render(q,await callGroq(q));}
-  catch(e){document.getElementById('respPane').innerHTML=`<div class="err-box">⚠ ${e.message}</div>`;}
-  S.busy=false;document.getElementById('qBtn').disabled=false;
-}
-
-function buildPayload(q){
-  const a=S.agg,M=S.M,ql=q.toLowerCase();
-  const ctx={
-    totalRows:a.totalRows,
-    dateRange:a.dateRange,
-    columnMapping:{
-      campaña:M.campaign,formato:M.format,plataforma:M.platform,fecha:M.date,
-      alcance:M.reach,impresiones:M.impressions,engagement:M.engagement,
-      likes:M.likes,comentarios:M.comments,compartidos:M.shares,vistas:M.views,er:M.er
-    },
-    globalTotals:a.globalTotals,
-  };
-  const wC=/campa/i.test(ql),wF=/format|contenido|tipo/i.test(ql),wP=/plataforma|instagram|tiktok|facebook|youtube|canal/i.test(ql),wT=/top|mayor|más alto|mejor|cuáles/i.test(ql);
-  if(wC||wT||(!wF&&!wP))ctx.byCampaign=a.byCampaign;
-  if(wF)ctx.byFormat=a.byFormat;
-  if(wP)ctx.byPlatform=a.byPlatform;
-  if(!wC&&!wF&&!wP){ctx.byPlatform=a.byPlatform;ctx.byFormat=a.byFormat;}
-  if(wT&&a.topByReach.length)ctx.topByReach=a.topByReach.slice(0,5);
   return JSON.stringify(ctx);
 }
 
-async function callGroq(q){
-  const payload=buildPayload(q);
-  const prompt=`Eres analista senior de social media para ${S.proj}.
-Tienes datos reales de Google Sheets con columnas correctamente identificadas en "columnMapping":
-${payload}
+// ══ GROQ CALL ══════════════════════════════════════════════════════════
+async function callGroq(q) {
+  const context = buildContext(q);
+  const prompt = `Eres el analista de social media de Samsung Mobile México.
+Tienes acceso a datos reales y pre-calculados del periodo Noviembre 2025 – Abril 2026, provenientes directamente de la base de datos del equipo.
 
-Usa "columnMapping" para entender exactamente qué representa cada número. Los datos son reales y exactos.
-Responde SOLO con JSON válido sin texto extra ni backticks:
-{"insight":"2-3 párrafos analíticos en español. Cita cifras específicas. Interpreta patrones y da recomendaciones accionables.","metrics":[{"label":"Nombre","value":"Valor con unidad"}],"chart":{"type":"bar","title":"Título","labels":["A","B"],"datasets":[{"label":"Serie","data":[1,2]}]}}
-Máximo 4 métricas. chart: bar/line/pie/doughnut o null.
+DATOS RELEVANTES PARA ESTA PREGUNTA:
+${context}
+
+INSTRUCCIONES:
+- Responde en español, tono profesional pero directo, como si hablaras con el equipo de cuenta o creativo
+- Cita cifras exactas del dataset (no inventes ni redondees de más)
+- Cuando compares plataformas o campañas, usa los datos del contexto
+- Si la pregunta menciona una campaña específica, usa sus datos exactos
+- Los datos de "Alcance" son personas únicas, "Views" son reproducciones
+- ER Básico % ya viene en porcentaje (ej: 4.4 significa 4.4%)
+
+Responde SOLO con este JSON (sin backticks, sin texto extra):
+{
+  "insight": "Análisis claro, 2-3 párrafos. Cita cifras concretas. Da contexto y recomendaciones.",
+  "metrics": [{"label": "Nombre", "value": "Valor con unidad"}],
+  "chart": {"type": "bar", "title": "Título", "labels": ["A","B"], "datasets": [{"label": "Serie", "data": [1,2]}]}
+}
+
+Máximo 4 métricas. chart: bar/line/pie/doughnut o null si no aplica visualmente.
 PREGUNTA: ${q}`;
 
-  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-    method:'POST',
-    headers:{'Authorization':`Bearer ${S.key}`,'Content-Type':'application/json'},
-    body:JSON.stringify({model:'llama-3.1-8b-instant',messages:[{role:'user',content:prompt}],temperature:0.15,max_tokens:900})
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'llama-3.1-8b-instant',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.1,
+      max_tokens: 1000
+    })
   });
-  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+res.status);}
-  const data=await res.json();
-  const raw=data.choices?.[0]?.message?.content||'';
-  const m=raw.match(/\{[\s\S]*\}/);
-  if(!m)throw new Error('Respuesta inválida. Intenta de nuevo.');
+
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    const msg = e.error?.message || `HTTP ${res.status}`;
+    if (msg.includes('Invalid API Key') || msg.includes('401')) {
+      localStorage.removeItem('si_groq_key');
+      throw new Error('API Key inválida. Recarga la página para ingresar una nueva.');
+    }
+    throw new Error(msg);
+  }
+
+  const data = await res.json();
+  const raw = data.choices?.[0]?.message?.content || '';
+  const m = raw.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error('Respuesta inválida. Intenta de nuevo.');
   return JSON.parse(m[0]);
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────
-function render(q,r){
-  const pane=document.getElementById('respPane');
-  const ts=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const cid='c'+Date.now();
-  const pal=['rgba(0,229,255,0.85)','rgba(0,255,148,0.85)','rgba(255,214,10,0.85)','rgba(255,77,109,0.85)','rgba(168,85,247,0.85)'];
-  pane.innerHTML=`
-    <div class="rcard">
-      <div class="r-echo"><div class="r-q">${q}</div><div class="r-ts">${ts}</div></div>
-      <div class="r-insight">${r.insight}</div>
-      ${r.metrics?.length?`<div class="metrics-row">${r.metrics.map(m=>`<div class="mc"><div class="mc-val">${m.value}</div><div class="mc-lbl">${m.label}</div></div>`).join('')}</div>`:''}
-      ${r.chart?`<div class="chart-box"><div class="chart-hd">${r.chart.title||'Visualización'}</div><canvas id="${cid}"></canvas></div>`:''}
+// ══ QUERY FLOW ══════════════════════════════════════════════════════════
+function ask(q) { document.getElementById('qInput').value = q; send(); }
+function send() { const q = document.getElementById('qInput').value.trim(); if (q) fire(q); }
+
+async function fire(q) {
+  if (busy) return;
+  busy = true;
+  document.getElementById('qBtn').disabled = true;
+  const empt = document.getElementById('emptyState');
+  if (empt) empt.style.display = 'none';
+  document.getElementById('respPane').innerHTML = `<div class="loading"><div class="spin"></div><span>Analizando con datos reales de Samsung MX…</span></div>`;
+  try {
+    render(q, await callGroq(q));
+  } catch(e) {
+    document.getElementById('respPane').innerHTML = `<div class="errbox">⚠ ${e.message}</div>`;
+  }
+  busy = false;
+  document.getElementById('qBtn').disabled = false;
+}
+
+// ══ RENDER ══════════════════════════════════════════════════════════════
+function render(q, r) {
+  const pane = document.getElementById('respPane');
+  const ts = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const cid = 'c' + Date.now();
+  const accents = ['var(--ice)', 'var(--mint)', 'var(--amber)', 'var(--violet)'];
+  const pal = ['rgba(127,219,255,0.8)', 'rgba(61,255,192,0.8)', 'rgba(255,184,0,0.8)', 'rgba(167,139,250,0.8)', 'rgba(255,92,125,0.8)'];
+  const palS = pal.map(p => p.replace('0.8)', '1)'));
+
+  pane.innerHTML = `
+    <div class="card">
+      <div class="cq-row">
+        <div class="cq-badge">Query</div>
+        <div class="cq-text">${q}</div>
+        <div class="cq-ts">${ts}</div>
+      </div>
+      <div class="insight">${r.insight}</div>
+      ${r.metrics?.length ? `
+      <div class="mrow">
+        ${r.metrics.map((m, i) => `
+          <div class="mcard">
+            <div class="mcard-bar" style="background:linear-gradient(90deg,${accents[i % accents.length]},transparent)"></div>
+            <div class="mcard-val">${m.value}</div>
+            <div class="mcard-lbl">${m.label}</div>
+          </div>`).join('')}
+      </div>` : ''}
+      ${r.chart ? `
+      <div class="cbox">
+        <div class="cbox-hd">
+          <div class="cbox-title">${r.chart.title || 'Visualización'}</div>
+          <div class="cbox-type">${(r.chart.type || 'chart').toUpperCase()}</div>
+        </div>
+        <canvas id="${cid}"></canvas>
+      </div>` : ''}
     </div>`;
-  if(r.chart&&document.getElementById(cid)){
-    if(S.chart)S.chart.destroy();
-    const isRound=['pie','doughnut'].includes(r.chart.type),isLine=r.chart.type==='line';
-    S.chart=new Chart(document.getElementById(cid),{
-      type:r.chart.type,
-      data:{labels:r.chart.labels,datasets:r.chart.datasets.map((ds,i)=>({
-        ...ds,
-        backgroundColor:isLine?'transparent':isRound?r.chart.labels.map((_,j)=>pal[j%pal.length]):pal[i%pal.length],
-        borderColor:isLine?pal[i%pal.length]:isRound?r.chart.labels.map((_,j)=>pal[j%pal.length].replace('0.85','1')):pal[i%pal.length].replace('0.85','1'),
-        borderWidth:1.5,borderRadius:(!isRound&&!isLine)?3:0,tension:0.4,pointRadius:isLine?4:0,fill:isLine
-      }))},
-      options:{responsive:true,
-        plugins:{legend:{labels:{color:'#4A5568',font:{family:'DM Mono',size:10},padding:14}}},
-        scales:isRound?{}:{
-          x:{ticks:{color:'#4A5568',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}},
-          y:{ticks:{color:'#4A5568',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}}
-        }}
+
+  if (r.chart && document.getElementById(cid)) {
+    if (chartInst) chartInst.destroy();
+    const isRound = ['pie', 'doughnut'].includes(r.chart.type);
+    const isLine = r.chart.type === 'line';
+    chartInst = new Chart(document.getElementById(cid), {
+      type: r.chart.type,
+      data: {
+        labels: r.chart.labels,
+        datasets: r.chart.datasets.map((ds, i) => ({
+          ...ds,
+          backgroundColor: isLine ? 'transparent' : isRound ? r.chart.labels.map((_, j) => pal[j % pal.length]) : pal[i % pal.length],
+          borderColor: isLine ? palS[i % palS.length] : isRound ? r.chart.labels.map((_, j) => palS[j % palS.length]) : palS[i % palS.length],
+          borderWidth: isRound ? 1 : 1.5,
+          borderRadius: (!isRound && !isLine) ? 2 : 0,
+          tension: 0.4, pointRadius: isLine ? 4 : 0, fill: isLine
+        }))
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: 'rgba(139,149,176,0.8)', font: { family: 'JetBrains Mono', size: 10 }, padding: 18, boxWidth: 10, boxHeight: 10 } } },
+        scales: isRound ? {} : {
+          x: { ticks: { color: 'rgba(58,66,87,0.9)', font: { family: 'JetBrains Mono', size: 9 }, maxRotation: 30 }, grid: { color: 'rgba(255,255,255,0.025)' }, border: { color: 'rgba(255,255,255,0.06)' } },
+          y: { ticks: { color: 'rgba(58,66,87,0.9)', font: { family: 'JetBrains Mono', size: 9 } }, grid: { color: 'rgba(255,255,255,0.025)' }, border: { color: 'rgba(255,255,255,0.06)' } }
+        }
+      }
     });
   }
 }
-function showErr(msg){document.getElementById('respPane').innerHTML=`<div class="err-box">⚠ ${msg}</div>`;}
 </script>
 </body>
 </html>
